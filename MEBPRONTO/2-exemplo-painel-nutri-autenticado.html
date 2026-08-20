@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEB - Painel Nutricionista</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #F5EFE6;
+      color: #333;
+    }
+
+    nav {
+      background: linear-gradient(135deg, #5C6B3A 0%, #3D2314 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav h1 {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    nav .user-info {
+      text-align: right;
+    }
+
+    nav .user-info p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    nav button {
+      background: #F5EFE6;
+      color: #5C6B3A;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 15px;
+      transition: all 0.3s ease;
+    }
+
+    nav button:hover {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .header {
+      margin-bottom: 40px;
+    }
+
+    .header h2 {
+      color: #5C6B3A;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #5C6B3A;
+      margin: 10px 0;
+    }
+
+    .stat-card .label {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .section {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .section h3 {
+      color: #5C6B3A;
+      font-size: 20px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #E5D9C9;
+      padding-bottom: 10px;
+    }
+
+    .patient-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .patient-card {
+      background: #F9F7F3;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #5C6B3A;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .patient-card:hover {
+      background: #F0EBE5;
+      transform: translateX(5px);
+    }
+
+    .patient-info h4 {
+      color: #3D2314;
+      margin-bottom: 5px;
+    }
+
+    .patient-info p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .patient-badge {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      background: #5C6B3A;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.status-ativa {
+      background: #4CAF50;
+    }
+
+    .badge.status-pausada {
+      background: #FFC107;
+    }
+
+    .badge.status-finalizada {
+      background: #9E9E9E;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      margin-left: 10px;
+    }
+
+    .btn-primary {
+      background: #5C6B3A;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #3D2314;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #5C6B3A;
+      color: #5C6B3A;
+    }
+
+    .btn-secondary:hover {
+      background: #5C6B3A;
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      color: #3D2314;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #E5D9C9;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #5C6B3A;
+      box-shadow: 0 0 0 2px rgba(92, 107, 58, 0.1);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.success {
+      background: #4CAF50;
+    }
+
+    .toast.error {
+      background: #F44336;
+    }
+
+    .toast.info {
+      background: #2196F3;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #E5D9C9;
+      border-top: 4px solid #5C6B3A;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state p {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #E5D9C9;
+      padding-bottom: 15px;
+    }
+
+    .modal-header h3 {
+      color: #5C6B3A;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #E5D9C9;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      color: #5C6B3A;
+      border-bottom-color: #5C6B3A;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav>
+    <h1>MEB</h1>
+    <div style="display: flex; align-items: center;">
+      <div class="user-info">
+        <p id="user-name">Carregando...</p>
+        <p id="user-role">nutricionista</p>
+      </div>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <h2>📊 Painel do Nutricionista</h2>
+      <p>Gerenciamento de pacientes e acompanhamento de progresso</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div style="font-size: 24px;">👥</div>
+        <div class="number" id="stat-total">0</div>
+        <div class="label">Pacientes Ativos</div>
+      </div>
+
+      <div class="stat-card">
+        <div style="font-size: 24px;">⭐</div>
+        <div class="number" id="stat-progresso">0%</div>
+        <div class="label">Progresso Médio</div>
+      </div>
+
+      <div class="stat-card">
+        <div style="font-size: 24px;">💬</div>
+        <div class="number" id="stat-mensagens">0</div>
+        <div class="label">Mensagens Não Lidas</div>
+      </div>
+
+      <div class="stat-card">
+        <div style="font-size: 24px;">🔥</div>
+        <div class="number" id="stat-habitos">0</div>
+        <div class="label">Hábitos Completados Hoje</div>
+      </div>
+    </div>
+
+    <!-- PACIENTES SECTION -->
+    <div class="section">
+      <h3>👥 Meus Pacientes</h3>
+
+      <div style="margin-bottom: 20px;">
+        <button class="btn btn-primary" onclick="mostrarModalNovoPaciente()">
+          + Adicionar Paciente
+        </button>
+      </div>
+
+      <div class="patient-list" id="pacientes-list">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Carregando pacientes...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENSAGENS SECTION -->
+    <div class="section">
+      <h3>💬 Mensagens Recentes</h3>
+
+      <div class="patient-list" id="mensagens-list">
+        <div class="empty-state">
+          <p>Nenhuma mensagem ainda</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO PACIENTE -->
+  <div class="modal" id="modal-novo-paciente">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Adicionar Novo Paciente</h3>
+        <button class="close-btn" onclick="fecharModalNovoPaciente()">×</button>
+      </div>
+
+      <form id="form-novo-paciente">
+        <div class="form-group">
+          <label>Nome do Paciente</label>
+          <input type="text" id="novo-paciente-nome" placeholder="Nome completo" required>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="novo-paciente-email" placeholder="email@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Plano</label>
+          <select id="novo-paciente-plano" required>
+            <option value="">Selecione um plano...</option>
+            <option value="caminho">🛤️ Caminho (90 dias)</option>
+            <option value="transformacao">🌱 Transformação (180 dias)</option>
+            <option value="jornada">🚀 Jornada (365 dias)</option>
+          </select>
+        </div>
+
+        <div class="grid">
+          <div class="form-group">
+            <label>Altura (cm)</label>
+            <input type="number" id="novo-paciente-altura" placeholder="170" min="100" max="230" required>
+          </div>
+
+          <div class="form-group">
+            <label>Peso Atual (kg)</label>
+            <input type="number" id="novo-paciente-peso" placeholder="75.5" step="0.1" min="30" max="300" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Peso Meta (kg)</label>
+          <input type="number" id="novo-paciente-peso-meta" placeholder="65" step="0.1" min="30" max="300" required>
+        </div>
+
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="novo-paciente-obs" placeholder="Notas sobre o paciente..." rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Criar Paciente
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHES DO PACIENTE -->
+  <div class="modal" id="modal-paciente-detalhe">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="detalhe-titulo">Detalhes do Paciente</h3>
+        <button class="close-btn" onclick="fecharModalDetalhe()">×</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="mudarAba('info')">Informações</button>
+        <button class="tab" onclick="mudarAba('progresso')">Progresso</button>
+        <button class="tab" onclick="mudarAba('mensagens')">Mensagens</button>
+      </div>
+
+      <div id="aba-info" class="tab-content active">
+        <div style="padding: 20px 0;">
+          <p><strong>Nome:</strong> <span id="detalhe-nome"></span></p>
+          <p><strong>Email:</strong> <span id="detalhe-email"></span></p>
+          <p><strong>Plano:</strong> <span id="detalhe-plano"></span></p>
+          <p><strong>Status:</strong> <span id="detalhe-status" class="badge"></span></p>
+          <p><strong>Peso Atual:</strong> <span id="detalhe-peso"></span> kg</p>
+          <p><strong>Peso Meta:</strong> <span id="detalhe-peso-meta"></span> kg</p>
+          <p><strong>Altura:</strong> <span id="detalhe-altura"></span> cm</p>
+        </div>
+      </div>
+
+      <div id="aba-progresso" class="tab-content">
+        <div style="padding: 20px 0;">
+          <p><strong>Progresso Geral:</strong> <span id="detalhe-progresso"></span>%</p>
+          <p><strong>Dias Restantes:</strong> <span id="detalhe-dias"></span></p>
+          <p><strong>Hábitos Completados (Semana):</strong> <span id="detalhe-habitos"></span></p>
+        </div>
+      </div>
+
+      <div id="aba-mensagens" class="tab-content">
+        <div id="detalhe-mensagens-list" style="padding: 20px 0;">
+          <p>Carregando mensagens...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast"></div>
+
+  <!-- SCRIPTS -->
+  <script src="meb-auth-sistema.js"></script>
+  <script src="meb-client-corrigido.js"></script>
+
+  <script>
+    // ⚙️ CONFIGURAÇÃO
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+    // 🔐 AUTENTICAÇÃO
+    const auth = new MEBAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const meb = new MEBClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    meb.initializeAuth(auth);
+
+    // 🛡️ PROTEGER PÁGINA
+    if (!auth.isAuthenticated()) {
+      window.location.href = '/🔐_LOGIN.html';
+    }
+
+    if (!auth.isNutricionista()) {
+      alert('❌ Acesso restrito a nutricionistas');
+      window.location.href = '/📱_TELA_PACIENTE.html';
+    }
+
+    // 👤 DADOS DO USUÁRIO
+    const nutricionistaId = auth.user.id;
+    const nutricionistaNome = auth.user.nome;
+
+    // Preencher navbar
+    document.getElementById('user-name').textContent = nutricionistaNome;
+
+    // ==================== FUNÇÕES ====================
+
+    async function carregarPacientes() {
+      try {
+        const pacientes = await meb.listarPacientes(nutricionistaId);
+
+        if (pacientes.length === 0) {
+          document.getElementById('pacientes-list').innerHTML =
+            '<div class="empty-state"><p>Você ainda não tem pacientes. Adicione um novo!</p></div>';
+          return;
+        }
+
+        let html = '';
+        let totalProgresso = 0;
+
+        for (const p of pacientes) {
+          const progresso = await meb.calcularProgresso(p.id);
+          totalProgresso += (progresso || 0);
+
+          const statusBadge = `status-${p.status}`;
+          const planoEmoji = {
+            'caminho': '🛤️',
+            'transformacao': '🌱',
+            'jornada': '🚀'
+          }[p.plano_id] || '📋';
+
+          html += `
+            <div class="patient-card" onclick="abrirDetalhesPaciente('${p.id}', '${p.nome}')">
+              <div class="patient-info">
+                <h4>${p.nome}</h4>
+                <p>${p.email}</p>
+                <p>📊 ${p.peso_atual}kg → ${p.peso_meta}kg</p>
+              </div>
+              <div class="patient-badge">
+                <span class="badge">${planoEmoji} ${p.plano_id}</span>
+                <span class="badge ${statusBadge}">${p.status}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        document.getElementById('pacientes-list').innerHTML = html;
+        document.getElementById('stat-total').textContent = pacientes.length;
+        document.getElementById('stat-progresso').textContent =
+          Math.round(totalProgresso / pacientes.length) + '%';
+
+      } catch (error) {
+        console.error('Erro ao carregar pacientes:', error);
+        mostrarToast('Erro ao carregar pacientes', 'error');
+        document.getElementById('pacientes-list').innerHTML =
+          '<div class="empty-state"><p>Erro ao carregar pacientes</p></div>';
+      }
+    }
+
+    async function abrirDetalhesPaciente(pacienteId, pacienteNome) {
+      try {
+        const paciente = await meb.obterPaciente(pacienteId);
+        const stats = await meb.obterStats(pacienteId);
+        const progresso = await meb.calcularProgresso(pacienteId);
+        const dias = await meb.diasRestantes(pacienteId);
+
+        document.getElementById('detalhe-titulo').textContent = `Detalhes - ${pacienteNome}`;
+        document.getElementById('detalhe-nome').textContent = paciente.nome;
+        document.getElementById('detalhe-email').textContent = paciente.email;
+        document.getElementById('detalhe-plano').textContent = paciente.plano_id;
+        document.getElementById('detalhe-status').textContent = paciente.status;
+        document.getElementById('detalhe-status').className = `badge status-${paciente.status}`;
+        document.getElementById('detalhe-peso').textContent = paciente.peso_atual;
+        document.getElementById('detalhe-peso-meta').textContent = paciente.peso_meta;
+        document.getElementById('detalhe-altura').textContent = paciente.altura || 'N/A';
+        document.getElementById('detalhe-progresso').textContent = Math.round(progresso || 0);
+        document.getElementById('detalhe-dias').textContent = dias || 0;
+        document.getElementById('detalhe-habitos').textContent = stats?.habitos_semana || 0;
+
+        document.getElementById('modal-paciente-detalhe').classList.add('active');
+
+      } catch (error) {
+        console.error('Erro:', error);
+        mostrarToast('Erro ao carregar detalhes', 'error');
+      }
+    }
+
+    function mostrarModalNovoPaciente() {
+      document.getElementById('modal-novo-paciente').classList.add('active');
+    }
+
+    function fecharModalNovoPaciente() {
+      document.getElementById('modal-novo-paciente').classList.remove('active');
+      document.getElementById('form-novo-paciente').reset();
+    }
+
+    function fecharModalDetalhe() {
+      document.getElementById('modal-paciente-detalhe').classList.remove('active');
+    }
+
+    function mudarAba(aba) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(`aba-${aba}`).classList.add('active');
+    }
+
+    document.getElementById('form-novo-paciente').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('novo-paciente-nome').value;
+      const email = document.getElementById('novo-paciente-email').value;
+      const plano = document.getElementById('novo-paciente-plano').value;
+      const altura = parseInt(document.getElementById('novo-paciente-altura').value);
+      const peso = parseFloat(document.getElementById('novo-paciente-peso').value);
+      const pesoMeta = parseFloat(document.getElementById('novo-paciente-peso-meta').value);
+
+      try {
+        await meb.criarPaciente(nutricionistaId, plano, nome, altura, peso, pesoMeta);
+        mostrarToast('Paciente criado com sucesso!', 'success');
+        fecharModalNovoPaciente();
+        carregarPacientes();
+      } catch (error) {
+        console.error('Erro:', error);
+        mostrarToast('Erro ao criar paciente: ' + error.message, 'error');
+      }
+    });
+
+    async function fazerLogout() {
+      if (confirm('Tem certeza que quer sair?')) {
+        await auth.logout();
+        window.location.href = '/🔐_LOGIN.html';
+      }
+    }
+
+    function mostrarToast(mensagem, tipo = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = mensagem;
+      toast.className = `toast ${tipo}`;
+
+      setTimeout(() => {
+        toast.textContent = '';
+        toast.className = '';
+      }, 3000);
+    }
+
+    // Carregar dados ao abrir página
+    document.addEventListener('DOMContentLoaded', carregarPacientes);
+  </script>
+</body>
+</html>

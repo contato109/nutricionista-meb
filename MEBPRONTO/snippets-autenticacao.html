@@ -1,0 +1,432 @@
+<!--
+  SNIPPETS DE AUTENTICAÇÃO
+  Copiar e colar em cada um dos seus 18 HTMLs
+
+  IMPORTANTE: Usar o snippet correspondente ao tipo de página
+-->
+
+<!-- ========================================
+  SNIPPET 1: PROTEGER PÁGINA (OBRIGATÓRIO)
+  Use em TODAS as páginas
+======================================== -->
+
+<script src="meb-auth-sistema.js"></script>
+<script src="meb-client-corrigido.js"></script>
+
+<script>
+  // ⚙️ CONFIGURAÇÃO
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+  // 🔐 AUTENTICAÇÃO
+  const auth = new MEBAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const meb = new MEBClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  meb.initializeAuth(auth);
+
+  // 🛡️ PROTEGER: Redirecionar não-autenticados
+  if (!auth.isAuthenticated()) {
+    window.location.href = '/🔐_LOGIN.html';
+  }
+</script>
+
+
+<!-- ========================================
+  SNIPPET 2: PAINEL NUTRICIONISTA
+  Use em: ⚕️_PAINEL_NUTRI.html
+======================================== -->
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // ✅ Verificar que é nutricionista
+  if (!auth.isNutricionista()) {
+    alert('Acesso restrito a nutricionistas');
+    window.location.href = '/📱_TELA_PACIENTE.html';
+  }
+
+  // 👤 Dados do usuário
+  const nutricionistaId = auth.user.id;
+  const nutricionistaNome = auth.user.nome;
+
+  // 📊 Exemplo: Listar pacientes
+  async function carregarPacientes() {
+    try {
+      const pacientes = await meb.listarPacientes(nutricionistaId);
+      console.log('Pacientes:', pacientes);
+      // Renderizar pacientes aqui
+    } catch (error) {
+      console.error('Erro ao carregar pacientes:', error);
+    }
+  }
+
+  // 🔴 Logout
+  async function fazerLogout() {
+    await auth.logout();
+    window.location.href = '/🔐_LOGIN.html';
+  }
+
+  // Executar ao carregar
+  document.addEventListener('DOMContentLoaded', carregarPacientes);
+</script>
+
+
+<!-- ========================================
+  SNIPPET 3: TELA PACIENTE
+  Use em: 📱_TELA_PACIENTE.html
+======================================== -->
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // ✅ Verificar que é paciente
+  if (!auth.isPaciente()) {
+    alert('Acesso restrito a pacientes');
+    window.location.href = '/⚕️_PAINEL_NUTRI.html';
+  }
+
+  // 👤 Dados do usuário
+  const pacienteId = auth.user.id;
+  const pacienteNome = auth.user.nome;
+
+  // 🥗 Exemplo: Registrar refeição
+  async function registrarRefeicao() {
+    try {
+      await meb.registrarRefeicao(pacienteId, {
+        tipo: 'almoco',
+        alimentos: ['frango', 'salada'],
+        descricao: 'Almoço do dia',
+        fotoUrl: null
+      });
+      alert('Refeição registrada!');
+    } catch (error) {
+      console.error('Erro ao registrar refeição:', error);
+    }
+  }
+
+  // 💧 Exemplo: Marcar hábito
+  async function marcarHabito(habitoId) {
+    try {
+      await meb.marcarHabitoCompleto(habitoId);
+      alert('Hábito marcado! 🔥');
+    } catch (error) {
+      console.error('Erro ao marcar hábito:', error);
+    }
+  }
+
+  // 🔴 Logout
+  async function fazerLogout() {
+    await auth.logout();
+    window.location.href = '/🔐_LOGIN.html';
+  }
+</script>
+
+
+<!-- ========================================
+  SNIPPET 4: MOSTRAR/OCULTAR CONTEÚDO POR ROLE
+  Use em páginas compartilhadas
+======================================== -->
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // Nutricionista
+  if (auth.isNutricionista()) {
+    document.getElementById('conteudo-nutri').style.display = 'block';
+    document.getElementById('conteudo-paciente').style.display = 'none';
+  }
+
+  // Paciente
+  if (auth.isPaciente()) {
+    document.getElementById('conteudo-paciente').style.display = 'block';
+    document.getElementById('conteudo-nutri').style.display = 'none';
+  }
+</script>
+
+<!-- HTML correspondente -->
+<div id="conteudo-nutri" style="display: none;">
+  <!-- Conteúdo para nutricionista -->
+</div>
+
+<div id="conteudo-paciente" style="display: none;">
+  <!-- Conteúdo para paciente -->
+</div>
+
+
+<!-- ========================================
+  SNIPPET 5: NAVBAR COM LOGOUT
+  Use em todas as páginas (topo)
+======================================== -->
+
+<nav style="background: #5C6B3A; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1 style="margin: 0; font-size: 20px;">MEB</h1>
+    <p style="margin: 0; font-size: 12px;" id="user-name"></p>
+  </div>
+
+  <button onclick="fazerLogout()" style="
+    background: #F5EFE6;
+    color: #5C6B3A;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  ">
+    Sair
+  </button>
+</nav>
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // Preencher nome do usuário na navbar
+  document.getElementById('user-name').textContent = `${auth.user.nome} (${auth.user.role})`;
+
+  async function fazerLogout() {
+    if (confirm('Tem certeza que quer sair?')) {
+      await auth.logout();
+      window.location.href = '/🔐_LOGIN.html';
+    }
+  }
+</script>
+
+
+<!-- ========================================
+  SNIPPET 6: ESCUTAR MUDANÇAS DE AUTENTICAÇÃO
+  Use em páginas que precisam atualizar em tempo real
+======================================== -->
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // Escutar login/logout de outras abas
+  const unsubscribe = auth.onAuthStateChange((eventType, data) => {
+    if (eventType === 'login') {
+      console.log('Usuário fez login:', data);
+      // Atualizar UI se necessário
+      location.reload();
+    } else if (eventType === 'logout') {
+      console.log('Usuário fez logout');
+      // Redirecionar para login
+      window.location.href = '/🔐_LOGIN.html';
+    }
+  });
+
+  // Cleanup quando sair da página
+  window.addEventListener('beforeunload', unsubscribe);
+</script>
+
+
+<!-- ========================================
+  SNIPPET 7: ATUALIZAR PERFIL DO USUÁRIO
+  Use em páginas de configuração/perfil
+======================================== -->
+
+<form id="form-perfil" style="max-width: 400px; margin: 20px;">
+  <h2>Meu Perfil</h2>
+
+  <div style="margin: 15px 0;">
+    <label>Nome Completo:</label>
+    <input type="text" id="input-nome" placeholder="Seu nome" style="width: 100%; padding: 10px;">
+  </div>
+
+  <div style="margin: 15px 0;">
+    <label>Email:</label>
+    <input type="email" id="input-email" placeholder="seu@email.com" disabled style="width: 100%; padding: 10px; background: #f0f0f0;">
+  </div>
+
+  <button type="submit" style="
+    background: #5C6B3A;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+  ">
+    Salvar Alterações
+  </button>
+</form>
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  // Preencher campos
+  document.getElementById('input-nome').value = auth.user.nome;
+  document.getElementById('input-email').value = auth.user.email;
+
+  // Salvar alterações
+  document.getElementById('form-perfil').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const novoNome = document.getElementById('input-nome').value.trim();
+
+    if (!novoNome) {
+      alert('Nome não pode estar vazio');
+      return;
+    }
+
+    const result = await auth.updateProfile({ nome: novoNome });
+
+    if (result.success) {
+      alert('Perfil atualizado com sucesso!');
+    } else {
+      alert('Erro: ' + result.error);
+    }
+  });
+</script>
+
+
+<!-- ========================================
+  SNIPPET 8: DASHBOARD COM INFO DO USUÁRIO
+  Use em páginas de dashboard/home
+======================================== -->
+
+<div style="
+  background: #F5EFE6;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 500px;
+  margin: 30px auto;
+">
+  <h2 style="color: #5C6B3A; margin: 0 0 10px;">Bem-vindo(a)!</h2>
+
+  <div style="font-size: 24px; margin: 20px 0;" id="welcome-message"></div>
+
+  <div style="background: white; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: left;">
+    <p><strong>Nome:</strong> <span id="info-nome"></span></p>
+    <p><strong>Email:</strong> <span id="info-email"></span></p>
+    <p><strong>Tipo:</strong> <span id="info-role"></span></p>
+    <p><strong>ID:</strong> <span id="info-id" style="font-size: 11px; word-break: break-all;"></span></p>
+  </div>
+</div>
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  const user = auth.getCurrentUser();
+
+  document.getElementById('welcome-message').textContent =
+    auth.isNutricionista()
+      ? '👨‍⚕️ Painel de Nutricionista'
+      : '💪 Sua Jornada de Bem-Estar';
+
+  document.getElementById('info-nome').textContent = user.nome;
+  document.getElementById('info-email').textContent = user.email;
+  document.getElementById('info-role').textContent =
+    user.role === 'nutricionista' ? 'Nutricionista' : 'Paciente';
+  document.getElementById('info-id').textContent = user.id;
+</script>
+
+
+<!-- ========================================
+  SNIPPET 9: RECUPERAÇÃO DE SENHA
+  Use em página separada ou modal
+======================================== -->
+
+<div style="max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid #E5D9C9; border-radius: 10px;">
+  <h2 style="color: #5C6B3A;">Redefinir Senha</h2>
+
+  <div id="reset-message" style="
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: none;
+  "></div>
+
+  <form id="form-recuperacao">
+    <div style="margin: 15px 0;">
+      <label>Email:</label>
+      <input type="email" id="reset-email" placeholder="seu@email.com" required style="width: 100%; padding: 10px;">
+    </div>
+
+    <button type="submit" style="
+      width: 100%;
+      padding: 10px;
+      background: #5C6B3A;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    ">
+      Enviar Link de Recuperação
+    </button>
+  </form>
+</div>
+
+<script>
+  // NOTA: Não precisa de auth.isAuthenticated() aqui
+  const auth2 = new MEBAuth('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+
+  document.getElementById('form-recuperacao').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('reset-email').value.trim();
+    const message = document.getElementById('reset-message');
+
+    const result = await auth2.requestPasswordReset(email);
+
+    if (result.success) {
+      message.textContent = '✅ ' + result.message;
+      message.style.background = '#E5F5E5';
+      message.style.color = '#4C8C4C';
+      message.style.display = 'block';
+    } else {
+      message.textContent = '❌ ' + result.error;
+      message.style.background = '#FFE5E5';
+      message.style.color = '#C84C4C';
+      message.style.display = 'block';
+    }
+  });
+</script>
+
+
+<!-- ========================================
+  SNIPPET 10: VERIFICAR ROLE ANTES DE AÇÃO
+  Use quando uma ação está disponível só para um role
+======================================== -->
+
+<button onclick="acaoRestrita()" style="padding: 10px 20px; background: #5C6B3A; color: white; border: none; border-radius: 5px; cursor: pointer;">
+  Criar Paciente (Nutricionista Only)
+</button>
+
+<script>
+  // [SNIPPET 1: PROTEGER PÁGINA]
+
+  async function acaoRestrita() {
+    // Verificar role
+    if (!auth.isNutricionista()) {
+      alert('❌ Esta ação está disponível apenas para nutricionistas');
+      return;
+    }
+
+    // Executar ação
+    try {
+      // Seu código aqui
+      alert('✅ Ação executada com sucesso!');
+    } catch (error) {
+      alert('❌ Erro: ' + error.message);
+    }
+  }
+</script>
+
+
+<!-- ========================================
+  CHECKLIST: O que você precisa em cada HTML
+======================================== -->
+
+<!--
+☐ Adicionar no início: meb-auth-sistema.js
+☐ Adicionar: meb-client-corrigido.js
+☐ Adicionar SUPABASE_URL e SUPABASE_ANON_KEY
+☐ Adicionar: Criação de auth e meb
+☐ Adicionar: Proteção da página (if !auth.isAuthenticated())
+☐ Verificar role correto se página é específica
+☐ Adicionar navbar com logout
+☐ Usar auth.user.id para queries
+☐ Testar login/logout
+☐ Verificar que dados são isolados por usuário (RLS)
+-->

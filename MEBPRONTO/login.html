@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEB - Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #5C6B3A 0%, #3D2314 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #F5EFE6;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo h1 {
+      color: #5C6B3A;
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .logo p {
+      color: #7A8C5C;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #3D2314;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #E5D9C9;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #5C6B3A;
+      background-color: #FFFAF5;
+      box-shadow: 0 0 0 3px rgba(92, 107, 58, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #5C6B3A 0%, #3D2314 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(92, 107, 58, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #5C6B3A;
+      border: 2px solid #5C6B3A;
+    }
+
+    .btn-secondary:hover {
+      background: #5C6B3A;
+      color: white;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 30px 0;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      display: inline-block;
+      width: 45%;
+      height: 1px;
+      background: #E5D9C9;
+      vertical-align: middle;
+    }
+
+    .divider::before {
+      margin-right: 10px;
+    }
+
+    .divider::after {
+      margin-left: 10px;
+    }
+
+    .toggle-signup {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .toggle-signup a {
+      color: #5C6B3A;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .toggle-signup a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      background: #FFE5E5;
+      color: #C84C4C;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+      border-left: 4px solid #C84C4C;
+    }
+
+    .success {
+      background: #E5F5E5;
+      color: #4C8C4C;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+      border-left: 4px solid #4C8C4C;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #5C6B3A;
+      font-size: 14px;
+    }
+
+    .spinner {
+      border: 3px solid #E5D9C9;
+      border-top: 3px solid #5C6B3A;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .forgot-password {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .forgot-password a {
+      color: #5C6B3A;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    #signupForm {
+      display: none;
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .role-option {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #E5D9C9;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .role-option:hover {
+      border-color: #5C6B3A;
+      background: #FFFAF5;
+    }
+
+    .role-option.selected {
+      border-color: #5C6B3A;
+      background: #5C6B3A;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <div class="logo">
+        <h1>MEB</h1>
+        <p>MÉTODO ESTRUTURADO DE BEM-ESTAR</p>
+      </div>
+
+      <div class="error" id="loginError"></div>
+      <div class="success" id="loginSuccess"></div>
+
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="seu@email.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Senha</label>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="••••••••"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="loginBtn">
+        <span class="loading" id="loginLoading">
+          <span class="spinner"></span>Entrando...
+        </span>
+        <span class="text">Entrar</span>
+      </button>
+
+      <div class="forgot-password">
+        <a href="#" onclick="showForgotPassword(); return false;">Esqueceu a senha?</a>
+      </div>
+
+      <div class="divider">ou</div>
+
+      <div class="toggle-signup">
+        Não tem conta? <a onclick="toggleForms(); return false;">Cadastre-se</a>
+      </div>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm">
+      <div class="logo">
+        <h1>MEB</h1>
+        <p>CADASTRO NOVO</p>
+      </div>
+
+      <div class="error" id="signupError"></div>
+      <div class="success" id="signupSuccess"></div>
+
+      <div class="form-group">
+        <label for="signupNome">Nome Completo</label>
+        <input
+          type="text"
+          id="signupNome"
+          placeholder="Seu nome"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input
+          type="email"
+          id="signupEmail"
+          placeholder="seu@email.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de Conta</label>
+        <div class="role-selector">
+          <div class="role-option selected" data-role="paciente">
+            👤 Paciente
+          </div>
+          <div class="role-option" data-role="nutricionista">
+            ⚕️ Nutricionista
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="signupPassword">Senha</label>
+        <input
+          type="password"
+          id="signupPassword"
+          placeholder="Mínimo 8 caracteres"
+          required
+          minlength="8"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="signupPasswordConfirm">Confirme a Senha</label>
+        <input
+          type="password"
+          id="signupPasswordConfirm"
+          placeholder="Repita a senha"
+          required
+          minlength="8"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="signupBtn">
+        <span class="loading" id="signupLoading">
+          <span class="spinner"></span>Criando...
+        </span>
+        <span class="text">Cadastrar</span>
+      </button>
+
+      <div class="divider">ou</div>
+
+      <div class="toggle-signup">
+        Já tem conta? <a onclick="toggleForms(); return false;">Faça login</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="meb-auth-sistema.js"></script>
+  <script src="meb-client-corrigido.js"></script>
+
+  <script>
+    // Configuração
+    const SUPABASE_URL = 'https://rboagbyxhkztzzmwyucb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_zpu-xoR_Pk-vSZVCuz_CFQ_E6r_dm5v';
+
+    const auth = new MEBAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const meb = new MEBClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    meb.initializeAuth(auth);
+
+    // Redirecionar se já autenticado
+    if (auth.isAuthenticated()) {
+      const role = auth.user.role;
+      window.location.href = role === 'nutricionista'
+        ? '/⚕️_PAINEL_NUTRI.html'
+        : '/📱_TELA_PACIENTE.html';
+    }
+
+    // ==================== LOGIN ====================
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorDiv = document.getElementById('loginError');
+      const successDiv = document.getElementById('loginSuccess');
+      const btn = document.getElementById('loginBtn');
+      const loading = document.getElementById('loginLoading');
+      const text = btn.querySelector('.text');
+
+      // Validação
+      if (!email || !password) {
+        mostrarErro('Preencha todos os campos', errorDiv);
+        return;
+      }
+
+      // Mostrar loading
+      loading.style.display = 'inline';
+      text.style.display = 'none';
+      btn.disabled = true;
+
+      const result = await auth.signIn(email, password);
+
+      if (result.success) {
+        mostrarSucesso('Login realizado! Redirecionando...', successDiv);
+
+        setTimeout(() => {
+          const role = auth.user.role;
+          window.location.href = role === 'nutricionista'
+            ? '/⚕️_PAINEL_NUTRI.html'
+            : '/📱_TELA_PACIENTE.html';
+        }, 1500);
+      } else {
+        mostrarErro(result.error, errorDiv);
+        loading.style.display = 'none';
+        text.style.display = 'inline';
+        btn.disabled = false;
+      }
+    });
+
+    // ==================== SIGNUP ====================
+
+    let selectedRole = 'paciente';
+
+    document.querySelectorAll('.role-option').forEach(option => {
+      option.addEventListener('click', function() {
+        document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedRole = this.dataset.role;
+      });
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('signupNome').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+      const errorDiv = document.getElementById('signupError');
+      const successDiv = document.getElementById('signupSuccess');
+      const btn = document.getElementById('signupBtn');
+      const loading = document.getElementById('signupLoading');
+      const text = btn.querySelector('.text');
+
+      // Validação
+      if (!nome || !email || !password || !passwordConfirm) {
+        mostrarErro('Preencha todos os campos', errorDiv);
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        mostrarErro('As senhas não conferem', errorDiv);
+        return;
+      }
+
+      if (password.length < 8) {
+        mostrarErro('A senha deve ter no mínimo 8 caracteres', errorDiv);
+        return;
+      }
+
+      // Mostrar loading
+      loading.style.display = 'inline';
+      text.style.display = 'none';
+      btn.disabled = true;
+
+      const result = await auth.signUp(email, password, nome, selectedRole);
+
+      if (result.success) {
+        mostrarSucesso(result.message, successDiv);
+
+        // Limpar form
+        document.getElementById('signupForm').reset();
+
+        // Aguardar e voltar ao login
+        setTimeout(() => {
+          toggleForms();
+          mostrarSucesso('Agora faça login com sua conta', document.getElementById('loginSuccess'));
+        }, 2000);
+      } else {
+        mostrarErro(result.error, errorDiv);
+        loading.style.display = 'none';
+        text.style.display = 'inline';
+        btn.disabled = false;
+      }
+    });
+
+    // ==================== UTIL ====================
+
+    function toggleForms() {
+      document.getElementById('loginForm').style.display =
+        document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
+      document.getElementById('signupForm').style.display =
+        document.getElementById('signupForm').style.display === 'none' ? 'block' : 'none';
+
+      // Limpar erros
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'none';
+      document.getElementById('signupError').style.display = 'none';
+      document.getElementById('signupSuccess').style.display = 'none';
+    }
+
+    function mostrarErro(mensagem, div) {
+      div.textContent = mensagem;
+      div.style.display = 'block';
+      div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function mostrarSucesso(mensagem, div) {
+      div.textContent = mensagem;
+      div.style.display = 'block';
+      div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showForgotPassword() {
+      const email = prompt('Digite seu email:');
+      if (email) {
+        auth.requestPasswordReset(email).then(result => {
+          if (result.success) {
+            alert('Instruções enviadas para seu email!');
+          } else {
+            alert('Erro: ' + result.error);
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

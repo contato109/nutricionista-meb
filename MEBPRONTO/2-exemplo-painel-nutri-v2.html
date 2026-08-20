@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEB - Painel do Nutricionista</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F0EBE1;
+      color: #2A1F14;
+    }
+    .navbar {
+      background: #5C6B3A;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .navbar h1 { margin: 0; }
+    .navbar button {
+      background: white;
+      color: #5C6B3A;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header {
+      background: linear-gradient(135deg, #3D2314 0%, #5C3A22 100%);
+      color: #F5EFE6;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(61, 35, 20, 0.2);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(61, 35, 20, 0.1);
+      border-left: 4px solid #5C6B3A;
+    }
+    .stat-value { font-size: 2.5em; font-weight: 700; color: #5C6B3A; }
+    .stat-label { font-size: 0.85em; color: #8A7A6A; text-transform: uppercase; }
+
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(61, 35, 20, 0.1);
+      border-left: 4px solid #5C6B3A;
+    }
+    .section h2 { color: #3D2314; margin-bottom: 20px; }
+
+    .patient-list {
+      display: grid;
+      gap: 15px;
+    }
+    .patient-card {
+      background: #F8F5F0;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #5C6B3A;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .patient-card:hover {
+      background: #F0E8DF;
+      transform: translateX(5px);
+    }
+    .patient-card strong { display: block; color: #5C6B3A; margin-bottom: 5px; }
+    .patient-card small { color: #8A7A6A; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background: #FFF;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .modal-close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .modal-close:hover { color: black; }
+
+    button {
+      background: #5C6B3A;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    button:hover { background: #7A8C52; }
+
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <h1>MEB ⚕️ Painel Nutricionista</h1>
+    <div>
+      <span id="user-name" style="margin-right: 20px;">Carregando...</span>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>Bem-vindo ao Painel de Nutricionista</h1>
+      <p>Acompanhe o progresso de todos os seus pacientes</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total de Pacientes</div>
+        <div class="stat-value" id="total-pacientes">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mensagens Não Lidas</div>
+        <div class="stat-value" id="mensagens-nao-lidas">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Progresso Médio</div>
+        <div class="stat-value" id="progresso-medio">0%</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>👥 Meus Pacientes</h2>
+      <button onclick="carregarPacientes()">Atualizar Lista</button>
+      <div id="pacientes-container" class="patient-list" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div id="pacienteModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="fecharModal()">&times;</span>
+      <h2 id="modal-title">Detalhes do Paciente</h2>
+      <div id="modal-body"></div>
+      <button onclick="fecharModal()" style="margin-top: 20px;">Fechar</button>
+    </div>
+  </div>
+
+  <!-- MEB System -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="meb-auth-sistema.js"></script>
+  <script src="meb-client-corrigido.js"></script>
+  <script src="meb-graficos.js"></script>
+  <script src="meb-notificacoes.js"></script>
+
+<script>
+
+// ========== MEB SETUP ==========
+const SUPABASE_URL = 'https://rboagbyxhkztzzmwyucb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_zpu-xoR_Pk-vSZVCuz_CFQ_E6r_dm5v';
+
+const auth = new MEBAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
+const meb = new MEBClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+meb.initializeAuth(auth);
+const notificacoes = inicializarNotificacoes();
+
+// Proteger página - só nutricionista
+if (!auth.isAuthenticated() || auth.user.role !== 'nutricionista') {
+  window.location.href = '/🔐_LOGIN.html';
+}
+
+document.getElementById('user-name').textContent = auth.user.nome;
+
+// ========== FIM MEB SETUP ==========
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.id = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+async function carregarPacientes() {
+  try {
+    const pacientes = await meb.listarPacientes();
+    const container = document.getElementById('pacientes-container');
+
+    if (!pacientes || pacientes.length === 0) {
+      container.innerHTML = '<p>Nenhum paciente cadastrado</p>';
+      document.getElementById('total-pacientes').textContent = '0';
+      return;
+    }
+
+    container.innerHTML = pacientes.map(p => `
+      <div class="patient-card" onclick="verDetalhes('${p.id}', '${p.nome}')">
+        <strong>${p.nome}</strong>
+        <small>📧 ${p.email}</small>
+        <small>⚖️ ${p.peso_atual} kg → ${p.peso_meta} kg</small>
+        <small>📋 Plano: ${p.plano?.tipo || '—'}</small>
+      </div>
+    `).join('');
+
+    document.getElementById('total-pacientes').textContent = pacientes.length;
+    showToast(`✅ ${pacientes.length} pacientes carregados`);
+  } catch (e) {
+    showToast('❌ Erro ao carregar pacientes: ' + e.message);
+  }
+}
+
+async function verDetalhes(pacienteId, nomePaciente) {
+  try {
+    const stats = await meb.obterStats(pacienteId);
+    const modal = document.getElementById('pacienteModal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+
+    modalTitle.textContent = `Detalhes - ${nomePaciente}`;
+    modalBody.innerHTML = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+        <div>
+          <strong>Peso Atual</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.peso_atual || '—'} kg</p>
+        </div>
+        <div>
+          <strong>Meta</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.peso_meta || '—'} kg</p>
+        </div>
+        <div>
+          <strong>Progresso</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${Math.round(stats.progresso_percentual || 0)}%</p>
+        </div>
+        <div>
+          <strong>Já Perdeu</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.peso_perdido || 0} kg</p>
+        </div>
+        <div>
+          <strong>Dias no Plano</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.dias_no_plano || 0}</p>
+        </div>
+        <div>
+          <strong>Dias Restantes</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.dias_restantes || 0}</p>
+        </div>
+        <div>
+          <strong>Refeições Hoje</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.refeicoes_registradas_hoje || 0}</p>
+        </div>
+        <div>
+          <strong>Hábitos Completados</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.habitos_completados_semana || 0}/${stats.habitos_totais || 0}</p>
+        </div>
+        <div>
+          <strong>Mensagens Não Lidas</strong>
+          <p style="font-size: 1.5em; color: #5C6B3A;">${stats.mensagens_nao_lidas || 0}</p>
+        </div>
+      </div>
+    `;
+
+    modal.style.display = 'block';
+  } catch (e) {
+    showToast('❌ Erro: ' + e.message);
+  }
+}
+
+function fecharModal() {
+  document.getElementById('pacienteModal').style.display = 'none';
+}
+
+async function fazerLogout() {
+  if (confirm('Deseja sair?')) {
+    await auth.logout();
+    window.location.href = '/🔐_LOGIN.html';
+  }
+}
+
+// Carregar dados ao iniciar
+window.addEventListener('load', () => {
+  carregarPacientes();
+});
+
+</script>
+
+</body>
+</html>
