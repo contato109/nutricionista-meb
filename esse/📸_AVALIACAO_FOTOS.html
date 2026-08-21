@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0">
+<title>MADU — Avaliação por Fotos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;--ter-bg:#FAF0EB;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+/* ─ HEADER ─ */
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+
+.hdr-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--creme);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s}
+.hdr-close:hover{background:rgba(255,255,255,.14)}
+
+/* ─ LAYOUT ─ */
+.page{padding:20px;max-width:800px;margin:0 auto;overflow-y:auto;min-height:calc(100vh - 56px)}
+
+/* ─ SECTION ─ */
+.sec{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.sec-hd{padding:12px 16px;background:var(--fundo);border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:10px}
+.sec-icon{font-size:18px;flex-shrink:0}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;flex:1}
+.sec-body{padding:16px}
+
+/* ─ TIMELINE ─ */
+.timeline-wrap{display:flex;gap:10px;overflow-x:auto;padding:8px 0;margin-bottom:20px;scroll-behavior:smooth}
+.timeline-item{flex-shrink:0;text-align:center;cursor:pointer;padding:8px;border-radius:var(--r);transition:all .15s}
+.timeline-item:hover{background:var(--fundo)}
+.timeline-date{font-size:10.5px;color:var(--txt-soft);margin-bottom:6px}
+.timeline-thumbs{display:flex;gap:4px;margin-bottom:6px}
+.timeline-thumb{width:48px;height:48px;border-radius:6px;background:var(--fundo);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all .15s;overflow:hidden;position:relative}
+.timeline-thumb img{width:100%;height:100%;object-fit:cover}
+.timeline-thumb:hover{border-color:var(--oliva)}
+.timeline-item.active .timeline-thumb{border-color:var(--oliva);box-shadow:0 0 0 2px rgba(92,107,58,.2)}
+.timeline-status{font-size:9px;font-weight:600;color:var(--txt-soft)}
+
+/* ─ PHOTO GRID ─ */
+.angle-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.angle-card{position:relative;cursor:pointer}
+.angle-placeholder{aspect-ratio:2/3;border:2px dashed var(--borda);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .15s;position:relative;overflow:hidden;background:var(--fundo)}
+.angle-placeholder:hover{border-color:var(--oliva);background:#fff}
+.angle-placeholder.has-photo{border:none;padding:0;background:none}
+.angle-placeholder.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:var(--r)}
+.angle-icon{font-size:32px;opacity:.4}
+.angle-label{font-size:11px;font-weight:600;text-align:center;color:var(--txt-soft)}
+.angle-input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.angle-remove{position:absolute;top:6px;right:6px;width:28px;height:28px;background:rgba(255,255,255,.9);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:0;transition:all .15s;z-index:10}
+.angle-placeholder.has-photo:hover .angle-remove{opacity:1}
+
+/* ─ DETAILS ─ */
+.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.detail-card{background:var(--fundo);border:1px solid var(--borda);border-radius:var(--r);padding:10px}
+.detail-label{font-size:10px;color:var(--txt-soft);margin-bottom:2px;letter-spacing:.05em;text-transform:uppercase}
+.detail-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--txt)}
+.detail-unit{font-size:12px;color:var(--txt-soft);display:inline}
+
+/* ─ NOTES ─ */
+.nutri-notes{background:var(--oliva-bg);border:1px solid #B8C89A;border-radius:var(--r);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.6;color:var(--txt-med)}
+.nutri-notes-label{font-size:10px;color:var(--oliva);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;display:block}
+.nutri-notes-text{font-style:italic;color:var(--txt-med)}
+
+/* ─ COMPARISON ─ */
+.comparison-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.comp-col{text-align:center}
+.comp-label{font-size:11px;color:var(--txt-soft);margin-bottom:6px;text-transform:uppercase;font-weight:500}
+.comp-img{width:100%;aspect-ratio:2/3;border-radius:var(--r);background:var(--fundo);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden}
+.comp-img img{width:100%;height:100%;object-fit:cover}
+.comp-diff{font-size:12px;margin-top:8px;padding:6px;background:#f5f5f5;border-radius:6px}
+.diff-val{font-weight:600;color:var(--terra)}
+
+/* ─ BUTTONS ─ */
+.btn-group{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:11px 16px;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;justify-content:center}
+.btn-pri{background:var(--oliva);color:#fff;flex:1}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:transparent;border:1px solid var(--borda);color:var(--txt-med);flex:1}.btn-sec:hover{background:var(--fundo)}
+.btn-sm{padding:7px 12px;font-size:12px;flex:0}
+
+/* ─ EMPTY STATE ─ */
+.empty{text-align:center;padding:40px 20px;color:var(--txt-soft)}
+.empty-icon{font-size:44px;margin-bottom:12px;opacity:.5}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt-med);margin-bottom:4px}
+.empty-sub{font-size:12.5px}
+
+/* ─ MODAL ─ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r) var(--r) 0 0;max-width:100%;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+.modal-hd{padding:16px;border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--surf);z-index:10}
+.modal-title{font-size:16px;font-weight:500;flex:1}
+.modal-close{width:32px;height:32px;border:none;background:var(--fundo);border-radius:50%;cursor:pointer;font-size:16px;color:var(--txt);transition:all .15s}
+.modal-close:hover{background:var(--borda)}
+.modal-body{padding:16px}
+
+.modal-img{width:100%;border-radius:var(--r);margin-bottom:12px;background:var(--fundo)}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:11px 16px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Instruções -->
+  <div class="sec">
+    <div class="sec-hd"><span class="sec-icon">📸</span><span class="sec-title">Como funciona</span></div>
+    <div class="sec-body">
+      <p style="font-size:13px;line-height:1.7;color:var(--txt-soft)">
+        Tire fotos suas em 3 ângulos diferentes para que eu possa acompanhar sua evolução de forma visual. As fotos são privadas e servem apenas para seu acompanhamento nutricional.
+      </p>
+    </div>
+  </div>
+
+  <!-- Timeline de histórico -->
+  <div id="timeline-section" style="display:none;margin-bottom:16px">
+    <div style="font-size:11px;color:var(--txt-soft);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase">Histórico</div>
+    <div class="timeline-wrap" id="timeline-wrap"></div>
+  </div>
+
+  <!-- Seção: Tirar novas fotos -->
+  <div class="sec">
+    <div class="sec-hd"><span class="sec-icon">📷</span><span class="sec-title">Tirar novas fotos</span></div>
+    <div class="sec-body">
+      <p style="font-size:12.5px;color:var(--txt-soft);margin-bottom:16px;line-height:1.6">
+        <strong>Dicas:</strong> Use roupa clara, de frente para um espelho bem iluminado, com o celular na altura do peito.
+      </p>
+      <div class="angle-grid">
+        <!-- Frontal -->
+        <div class="angle-card" onclick="triggerUpload('frontal')">
+          <div class="angle-placeholder" id="ph-frontal">
+            <div class="angle-icon">👁️</div>
+            <div class="angle-label">Frontal</div>
+            <input type="file" class="angle-input" accept="image/*" onchange="handlePhoto(event,'frontal')">
+          </div>
+          <button class="angle-remove" onclick="removePhoto(event,'frontal')">×</button>
+        </div>
+
+        <!-- Lateral -->
+        <div class="angle-card" onclick="triggerUpload('lateral')">
+          <div class="angle-placeholder" id="ph-lateral">
+            <div class="angle-icon">👈</div>
+            <div class="angle-label">Lateral</div>
+            <input type="file" class="angle-input" accept="image/*" onchange="handlePhoto(event,'lateral')">
+          </div>
+          <button class="angle-remove" onclick="removePhoto(event,'lateral')">×</button>
+        </div>
+
+        <!-- Costas -->
+        <div class="angle-card" onclick="triggerUpload('costas')">
+          <div class="angle-placeholder" id="ph-costas">
+            <div class="angle-icon">🔙</div>
+            <div class="angle-label">Costas</div>
+            <input type="file" class="angle-input" accept="image/*" onchange="handlePhoto(event,'costas')">
+          </div>
+          <button class="angle-remove" onclick="removePhoto(event,'costas')">×</button>
+        </div>
+      </div>
+
+      <!-- Data de captura -->
+      <div class="details-grid" style="margin-top:16px">
+        <div class="detail-card">
+          <div class="detail-label">Data de hoje</div>
+          <div class="detail-val" style="font-size:16px" id="date-today">14/06/2026</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-label">Peso (opcional)</div>
+          <input type="number" placeholder="kg" style="width:100%;padding:4px 6px;border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--txt);outline:none;min-width:0" id="photo-weight">
+        </div>
+      </div>
+
+      <button class="btn btn-pri" style="margin-top:16px" onclick="submitPhotos()" id="btn-submit">💾 Salvar fotos</button>
+    </div>
+  </div>
+
+  <!-- Histórico com comparação -->
+  <div class="sec" id="history-section" style="display:none">
+    <div class="sec-hd"><span class="sec-icon">📊</span><span class="sec-title">Histórico & Evolução</span></div>
+    <div class="sec-body">
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Visualizar foto em zoom ══ -->
+<div class="modal-overlay" id="photo-modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Foto</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <img id="modal-img" class="modal-img">
+      <p style="font-size:12.5px;color:var(--txt-soft);text-align:center">
+        <span id="modal-date"></span> · <span id="modal-angle"></span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Sample data
+const SAMPLE_HISTORY = [
+  { id:1, date:'01/06/2026', photos:{frontal:'📷',lateral:'📷',costas:'📷'}, weight:76.2, nutri_note:'Ótima postura! Evoluindo bem.' },
+  { id:2, date:'08/06/2026', photos:{frontal:'📷',lateral:'📷',costas:'📷'}, weight:74.8, nutri_note:'Definição aumentando. Continue assim! 💪' },
+  { id:3, date:'14/06/2026', photos:{frontal:'📷',lateral:'📷',costas:'📷'}, weight:74.2, nutri_note:'' },
+];
+
+let photos = { frontal: null, lateral: null, costas: null };
+
+function getDateStr() {
+  const today = new Date();
+  return `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+}
+
+function triggerUpload(angle) {
+  const input = document.querySelector(`#ph-${angle} input[type="file"]`);
+  if (input) input.click();
+}
+
+function handlePhoto(e, angle) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    photos[angle] = ev.target.result;
+    
+    const placeholder = document.getElementById(`ph-${angle}`);
+    placeholder.classList.add('has-photo');
+    placeholder.innerHTML = `<img src="${ev.target.result}" alt="${angle}">`;
+    
+    showToast(`Foto ${angle} adicionada ✓`);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(e, angle) {
+  e.stopPropagation();
+  photos[angle] = null;
+  
+  const placeholder = document.getElementById(`ph-${angle}`);
+  placeholder.classList.remove('has-photo');
+  const angleLabel = {frontal:'👁️ Frontal', lateral:'👈 Lateral', costas:'🔙 Costas'}[angle];
+  placeholder.innerHTML = `<div class="angle-icon">${angleLabel.split(' ')[0]}</div><div class="angle-label">${angleLabel.split(' ')[1]}</div><input type="file" class="angle-input" accept="image/*" onchange="handlePhoto(event,'${angle}')">`;
+  
+  showToast(`Foto ${angle} removida`);
+}
+
+async function submitPhotos() {
+  if (!photos.frontal || !photos.lateral || !photos.costas) {
+    showToast('Tire as 3 fotos antes de salvar', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Salvando...';
+
+  try {
+    // Upload para Supabase Storage
+    const { data: { user } } = await supabase.auth.getSession();
+    if (!user) throw new Error('Usuário não autenticado');
+    
+    const now = Date.now();
+    for (const [angle, data] of Object.entries(photos)) {
+      if (data) {
+        // Converter blob para arquivo
+        const fileName = `${user.id}/${now}_${angle}.jpg`;
+        const { error: uploadError } = await supabase.storage
+          .from('progress-photos')
+          .upload(fileName, data);
+        
+        if (uploadError) throw uploadError;
+        
+        // Salvar no banco de dados
+        const { error: dbError } = await supabase
+          .from('progress_photos')
+          .insert({
+            patient_id: user.id,
+            angle: angle,
+            storage_path: fileName,
+            photo_date: new Date().toISOString().split('T')[0],
+            weight: parseFloat(document.getElementById('weight-value').textContent) || null
+          });
+        
+        if (dbError) throw dbError;
+      }
+    }
+    
+    showToast('Fotos salvas com sucesso! 🎉');
+    photos = { frontal: null, lateral: null, costas: null };
+    document.querySelectorAll('.angle-placeholder').forEach(p => p.classList.remove('has-photo'));
+    renderHistory();
+    
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '💾 Salvar fotos';
+    }, 1000);
+  } catch (err) {
+    console.error('Error:', err);
+    showToast('Erro ao salvar fotos', 'error');
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar fotos';
+  }
+}
+
+function renderHistory() {
+  if (!SAMPLE_HISTORY.length) {
+    document.getElementById('history-section').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('history-section').style.display = 'block';
+  
+  // Timeline
+  const timeline = document.getElementById('timeline-wrap');
+  timeline.innerHTML = SAMPLE_HISTORY.map((h, i) => `
+    <div class="timeline-item ${i === SAMPLE_HISTORY.length - 1 ? 'active' : ''}" onclick="showHistory(${i})">
+      <div class="timeline-date">${h.date}</div>
+      <div class="timeline-thumbs">
+        <div class="timeline-thumb">📷</div>
+      </div>
+      <div class="timeline-status">${h.weight} kg</div>
+    </div>`).join('');
+  document.getElementById('timeline-section').style.display = 'block';
+
+  // History list
+  const list = document.getElementById('history-list');
+  list.innerHTML = SAMPLE_HISTORY.map((h, i) => `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:500">${h.date}</div>
+        ${h.weight ? `<div style="font-size:11px;background:var(--oliva-bg);color:var(--oliva);padding:2px 8px;border-radius:10px">⚖️ ${h.weight} kg</div>` : ''}
+        ${h.nutri_note ? `<div style="font-size:11px;background:var(--ter-bg);color:var(--terra);padding:2px 8px;border-radius:10px">🌿 Com comentário</div>` : ''}
+      </div>
+      <div class="comparison-wrap">
+        <div class="comp-col" onclick="viewPhoto('${h.id}','frontal')">
+          <div class="comp-label">Frontal</div>
+          <div class="comp-img" style="cursor:pointer;border:1px solid var(--borda)">📷</div>
+        </div>
+        <div class="comp-col" onclick="viewPhoto('${h.id}','lateral')">
+          <div class="comp-label">Lateral</div>
+          <div class="comp-img" style="cursor:pointer;border:1px solid var(--borda)">📷</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="btn btn-sec btn-sm" onclick="viewPhoto('${h.id}','costas')">Costas</button>
+      </div>
+      ${h.nutri_note ? `
+        <div class="nutri-notes" style="margin-top:10px">
+          <span class="nutri-notes-label">💬 Comentário da Duda</span>
+          <div class="nutri-notes-text">${h.nutri_note}</div>
+        </div>
+      ` : ''}
+    </div>`).join('');
+}
+
+function showHistory(i) {
+  const h = SAMPLE_HISTORY[i];
+  // Mostrar comparação
+  alert(`Histórico de ${h.date} — ${h.weight} kg`);
+}
+
+function viewPhoto(id, angle) {
+  const h = SAMPLE_HISTORY.find(x => x.id === parseInt(id));
+  if (!h) return;
+  
+  document.getElementById('modal-title').textContent = `${angle.charAt(0).toUpperCase() + angle.slice(1)}`;
+  document.getElementById('modal-date').textContent = h.date;
+  document.getElementById('modal-angle').textContent = angle;
+  document.getElementById('modal-img').src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><rect fill="%23F0EBE1" width="400" height="600"/><circle cx="200" cy="150" r="50" fill="%235C6B3A" opacity=".3"/><ellipse cx="200" cy="350" rx="60" ry="80" fill="%235C6B3A" opacity=".2"/></svg>';
+  
+  document.getElementById('photo-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('photo-modal')) {
+    document.getElementById('photo-modal').classList.remove('open');
+  }
+}
+
+function closePanel() {
+  window.history.back();
+}
+
+let toastT;
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  if (type === 'error') el.style.background = '#C0392B';
+  else el.style.background = 'var(--choco)';
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('date-today').textContent = getDateStr();
+  renderHistory();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Editor de Cardápio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--choco-med:#5C3A22;--creme:#F5EFE6;
+  --dourado:#B8922A;--dou-bg:#FBF4E3;
+  --terra:#C4714A;--ter-bg:#FAF0EB;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--borda-f:#C8BFB3;
+  --txt:#2A1F14;--txt-med:#5C4A38;--txt-soft:#8A7A6A;
+  --r:8px;--r-lg:14px;--sh:0 2px 12px rgba(61,35,20,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+/* ─ HEADER ─ */
+.hdr{background:var(--choco);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--creme);letter-spacing:.04em;display:flex;align-items:center;gap:9px}
+
+.hdr-actions{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:rgba(255,255,255,.08);color:var(--creme);border:1px solid rgba(255,255,255,.12)}.btn-sec:hover{background:rgba(255,255,255,.14)}
+.btn-pub{background:var(--dourado);color:#fff}.btn-pub:hover{background:#9A7A22}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+.btn-ghost{background:transparent;color:var(--txt-soft);border:1px solid var(--borda)}.btn-ghost:hover{background:var(--fundo)}
+.btn-danger{background:#FFF0EE;color:#C0392B;border:1px solid #FFCCCC}.btn-danger:hover{background:#FFE0DC}
+
+/* ─ LAYOUT ─ */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 56px)}
+.editor-col{padding:24px;border-right:1px solid var(--borda);overflow-y:auto;max-height:calc(100vh - 56px)}
+.preview-col{padding:20px;overflow-y:auto;max-height:calc(100vh - 56px);background:var(--surf)}
+
+/* ─ FORM SECTIONS ─ */
+.sec{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);margin-bottom:14px;overflow:hidden}
+.sec-hd{padding:14px 18px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;background:var(--fundo)}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500}
+.sec-body{padding:16px 18px}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.form-group:last-child{margin-bottom:0}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft)}
+.inp,.sel,.ta{width:100%;padding:9px 11px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--txt);outline:none;transition:border-color .15s;background:var(--surf);-webkit-appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--oliva)}
+.ta{resize:vertical;min-height:64px;line-height:1.5}
+.inp-sm{padding:7px 9px;font-size:12.5px}
+
+/* ─ MEAL BLOCKS ─ */
+.meal-block{border:1px solid var(--borda);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden}
+.meal-block-hd{background:var(--fundo);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.meal-drag{color:var(--borda-f);font-size:16px;cursor:grab}
+.meal-icon-sel{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.meal-hd-info{flex:1}
+.meal-hd-name{font-size:14px;font-weight:500}
+.meal-hd-meta{font-size:11.5px;color:var(--txt-soft);margin-top:1px}
+.meal-kcal-total{font-size:12px;font-weight:600;color:var(--choco-med);background:var(--dou-bg);border:1px solid #EDD68A;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.meal-chevron{color:var(--txt-soft);transition:transform .2s;font-size:16px}
+.meal-block.open .meal-chevron{transform:rotate(90deg)}
+.meal-body{display:none;padding:14px;border-top:1px solid var(--borda)}
+.meal-block.open .meal-body{display:block}
+
+.meal-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+
+/* ─ FOODS TABLE ─ */
+.foods-table{width:100%;border-collapse:collapse;margin-bottom:10px}
+.foods-table th{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft);padding:5px 8px;text-align:left;border-bottom:1px solid var(--borda)}
+.foods-table td{padding:4px 4px;vertical-align:middle;border-bottom:1px solid var(--borda)}
+.foods-table tr:last-child td{border-bottom:none}
+.food-inp{width:100%;padding:6px 8px;border:1px solid transparent;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--txt);background:transparent;outline:none;transition:all .15s}
+.food-inp:focus{border-color:var(--oliva);background:white}
+.food-inp:hover{border-color:var(--borda)}
+.food-macro{width:60px}
+.del-food{width:26px;height:26px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:var(--txt-soft);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.del-food:hover{background:#FFF0EE;color:#C0392B}
+.add-food-btn{width:100%;background:var(--oliva-bg);border:1px dashed var(--oliva-lt);border-radius:var(--r);padding:8px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--oliva);cursor:pointer;transition:background .15s;margin-bottom:10px}
+.add-food-btn:hover{background:#dde3d4}
+
+/* ─ MACRO TOTALS ─ */
+.macro-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.macro-pill{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:500}
+.mp-kcal{background:var(--dou-bg);color:var(--dourado);border:1px solid #EDD68A}
+.mp-prot{background:#E8F5E9;color:#2E7D32}
+.mp-carb{background:#E3F2FD;color:#1565C0}
+.mp-gord{background:#FFF3E0;color:#E65100}
+
+/* ─ SUBS / OBS ─ */
+.extras-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+/* ─ ADD MEAL ─ */
+.add-meal-bar{border:2px dashed var(--borda);border-radius:var(--r-lg);padding:14px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .15s;color:var(--txt-soft);font-size:13.5px;font-weight:500}
+.add-meal-bar:hover{border-color:var(--oliva);background:var(--oliva-bg);color:var(--oliva)}
+
+/* ─ PREVIEW ─ */
+.preview-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;margin-bottom:14px;color:var(--txt)}
+.preview-meta-box{background:var(--fundo);border:1px solid var(--borda);border-radius:var(--r);padding:12px;margin-bottom:14px}
+.preview-plan-title{font-size:14px;font-weight:500;margin-bottom:3px}
+.preview-plan-sub{font-size:11.5px;color:var(--txt-soft)}
+.preview-macros{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.preview-meal{margin-bottom:10px}
+.prev-meal-hd{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--fundo);border-radius:var(--r) var(--r) 0 0;border:1px solid var(--borda);border-bottom:none}
+.prev-meal-icon{font-size:16px}
+.prev-meal-name{font-size:13px;font-weight:500;flex:1}
+.prev-meal-kcal{font-size:11px;color:var(--txt-soft)}
+.prev-foods{border:1px solid var(--borda);border-radius:0 0 var(--r) var(--r);overflow:hidden}
+.prev-food-row{display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--borda);font-size:12.5px}
+.prev-food-row:last-child{border-bottom:none}
+.prev-food-name{color:var(--txt)}
+.prev-food-qty{color:var(--txt-soft)}
+.prev-subs{font-size:11.5px;color:var(--oliva);background:var(--oliva-bg);padding:6px 10px;border:1px solid var(--borda);border-top:none;border-radius:0 0 var(--r) var(--r)}
+
+/* ─ STATUS BADGE ─ */
+.status-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.status-rascunho{background:var(--dou-bg);color:var(--dourado)}
+.status-ativo{background:var(--oliva-bg);color:var(--oliva)}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:10px 18px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;box-shadow:var(--sh)}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.preview-col{display:none}}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="layout">
+
+  <!-- ══ COLUNA EDITOR ══ -->
+  <div class="editor-col">
+
+    <!-- Dados do plano -->
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title">Dados do plano</span>
+        <span class="status-badge status-rascunho" id="plan-status-badge">Rascunho</span>
+      </div>
+      <div class="sec-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="lbl">Paciente</label>
+            <select class="sel" id="plan-patient" onchange="updatePreview()">
+              <option>Ana Paula Souza</option>
+              <option>Roberta Lima</option>
+              <option>Fernanda Costa</option>
+              <option>Carla Mendes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="lbl">Título do plano</label>
+            <input class="inp" id="plan-title" value="Plano Julho 2026 — Fase Redução" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="lbl">Válido de</label>
+            <input class="inp" type="date" id="plan-from" value="2026-07-01" oninput="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label class="lbl">Válido até</label>
+            <input class="inp" type="date" id="plan-to" value="2026-07-31" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Meta kcal/dia</label>
+            <input class="inp" type="number" id="plan-kcal" value="1580" oninput="updatePreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Proteína meta (g)</label>
+            <input class="inp" type="number" id="plan-prot" value="110" oninput="updatePreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Carb meta (g)</label>
+            <input class="inp" type="number" id="plan-carb" value="160" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label class="lbl">Observações gerais</label>
+          <textarea class="ta" id="plan-obs" oninput="updatePreview()">Mastigar bem cada refeição. Beber 2L de água por dia. Em caso de dúvidas, me chame no chat.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refeições -->
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title">Refeições</span>
+        <span style="font-size:12px;color:var(--txt-soft)" id="meals-summary">5 refeições · 0 kcal</span>
+      </div>
+      <div class="sec-body" style="padding:14px">
+        <div id="meals-container"></div>
+        <div class="add-meal-bar" onclick="addMeal()">
+          + Adicionar refeição
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ COLUNA PREVIEW ══ -->
+  <div class="preview-col">
+    <div class="preview-title">Preview da paciente</div>
+    <div id="preview-content"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+/* ─── DATA ─── */
+const MEAL_ICONS = {'cafe':'☀️','lanche_m':'🍎','almoco':'🥗','lanche_t':'🫐','jantar':'🌙','pre_t':'🏋️','pos_t':'💪','ceia':'🌛'};
+const MEAL_LABELS = {'cafe':'Café da manhã','lanche_m':'Lanche da manhã','almoco':'Almoço','lanche_t':'Lanche da tarde','jantar':'Jantar','pre_t':'Pré-treino','pos_t':'Pós-treino','ceia':'Ceia'};
+
+let meals = [
+  { id:'m1', type:'cafe', time:'07:30', foods:[
+    {name:'Ovos mexidos',qty:'2 un.',kcal:150,prot:12,carb:1,gord:10},
+    {name:'Pão integral',qty:'1 fatia (30g)',kcal:80,prot:3,carb:15,gord:1},
+    {name:'Banana prata',qty:'1 média',kcal:90,prot:1,carb:22,gord:0},
+  ], subs:'Pão → tapioca (2 un.) | Banana → mamão (150g)', obs:'Coma devagar, sem celular 🌿' },
+  { id:'m2', type:'lanche_m', time:'10:00', foods:[
+    {name:'Maçã',qty:'1 un. (150g)',kcal:80,prot:0,carb:19,gord:0},
+    {name:'Castanha-do-pará',qty:'2 un.',kcal:60,prot:1,carb:1,gord:6},
+  ], subs:'Maçã → pera ou laranja', obs:'' },
+  { id:'m3', type:'almoco', time:'12:30', foods:[
+    {name:'Arroz integral',qty:'4 col. sopa',kcal:140,prot:3,carb:30,gord:1},
+    {name:'Feijão carioca',qty:'3 col. sopa',kcal:90,prot:6,carb:16,gord:1},
+    {name:'Frango grelhado',qty:'1 filé (120g)',kcal:180,prot:28,carb:0,gord:4},
+    {name:'Salada variada',qty:'à vontade',kcal:20,prot:1,carb:4,gord:0},
+    {name:'Azeite',qty:'1 fio (5ml)',kcal:44,prot:0,carb:0,gord:5},
+  ], subs:'Frango → carne magra ou atum | Arroz → batata-doce (150g)', obs:'Comece pela salada. Use prato menor.' },
+  { id:'m4', type:'lanche_t', time:'15:30', foods:[
+    {name:'Iogurte grego natural',qty:'1 pote (170g)',kcal:100,prot:17,carb:6,gord:2},
+    {name:'Granola s/ açúcar',qty:'2 col. sopa',kcal:80,prot:2,carb:12,gord:3},
+    {name:'Frutas vermelhas',qty:'1 punhado (50g)',kcal:25,prot:0,carb:6,gord:0},
+  ], subs:'Iogurte → cottage | Granola → aveia', obs:'' },
+  { id:'m5', type:'jantar', time:'19:30', foods:[
+    {name:'Sopa de legumes',qty:'1 tigela (250ml)',kcal:90,prot:4,carb:16,gord:2},
+    {name:'Frango desfiado',qty:'80g',kcal:120,prot:19,carb:0,gord:3},
+    {name:'Pão integral',qty:'1 fatia',kcal:80,prot:3,carb:15,gord:1},
+  ], subs:'Sopa → omelete de legumes', obs:'Jantar leve. Evite doces após as 19h.' },
+];
+
+let mealCounter = 6;
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderMeals();
+  updatePreview();
+});
+
+/* ─── RENDER MEALS ─── */
+function renderMeals() {
+  const container = document.getElementById('meals-container');
+  container.innerHTML = meals.map(m => buildMealBlock(m)).join('');
+  updateMealsSummary();
+}
+
+function buildMealBlock(m) {
+  const totalKcal = m.foods.reduce((s,f) => s + (f.kcal||0), 0);
+  const totalProt = m.foods.reduce((s,f) => s + (f.prot||0), 0);
+  const totalCarb = m.foods.reduce((s,f) => s + (f.carb||0), 0);
+  const totalGord = m.foods.reduce((s,f) => s + (f.gord||0), 0);
+
+  const foodRows = m.foods.map((f,fi) => `
+    <tr>
+      <td><input class="food-inp" value="${f.name}" oninput="updateFood('${m.id}',${fi},'name',this.value)" placeholder="Nome do alimento"></td>
+      <td><input class="food-inp" value="${f.qty}" oninput="updateFood('${m.id}',${fi},'qty',this.value)" placeholder="Quantidade"></td>
+      <td><input class="food-inp food-macro" type="number" value="${f.kcal||''}" oninput="updateFood('${m.id}',${fi},'kcal',+this.value)" placeholder="0"></td>
+      <td><input class="food-inp food-macro" type="number" value="${f.prot||''}" oninput="updateFood('${m.id}',${fi},'prot',+this.value)" placeholder="0"></td>
+      <td><input class="food-inp food-macro" type="number" value="${f.carb||''}" oninput="updateFood('${m.id}',${fi},'carb',+this.value)" placeholder="0"></td>
+      <td><input class="food-inp food-macro" type="number" value="${f.gord||''}" oninput="updateFood('${m.id}',${fi},'gord',+this.value)" placeholder="0"></td>
+      <td><button class="del-food" onclick="deleteFood('${m.id}',${fi})">×</button></td>
+    </tr>`).join('');
+
+  return `
+    <div class="meal-block" id="mb-${m.id}">
+      <div class="meal-block-hd" onclick="toggleMealBlock('${m.id}')">
+        <span class="meal-drag">⠿</span>
+        <span class="meal-icon-sel">${MEAL_ICONS[m.type]||'🍽️'}</span>
+        <div class="meal-hd-info">
+          <div class="meal-hd-name">${MEAL_LABELS[m.type]||m.type}</div>
+          <div class="meal-hd-meta">${m.time} · ${m.foods.length} alimento${m.foods.length!==1?'s':''}</div>
+        </div>
+        <span class="meal-kcal-total">~${totalKcal} kcal</span>
+        <button class="btn btn-danger btn-sm" style="margin-right:6px" onclick="event.stopPropagation();deleteMeal('${m.id}')">Remover</button>
+        <span class="meal-chevron">›</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-fields">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Tipo de refeição</label>
+            <select class="sel" onchange="updateMealField('${m.id}','type',this.value)">
+              ${Object.entries(MEAL_LABELS).map(([k,v])=>`<option value="${k}" ${m.type===k?'selected':''}>${MEAL_ICONS[k]} ${v}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Horário sugerido</label>
+            <input class="inp" type="time" value="${m.time}" oninput="updateMealField('${m.id}','time',this.value)">
+          </div>
+        </div>
+
+        <label class="lbl" style="display:block;margin-bottom:6px">Alimentos</label>
+        <table class="foods-table">
+          <thead><tr>
+            <th style="width:30%">Alimento</th>
+            <th style="width:20%">Quantidade</th>
+            <th style="width:10%">kcal</th>
+            <th style="width:10%">Prot (g)</th>
+            <th style="width:10%">Carb (g)</th>
+            <th style="width:10%">Gord (g)</th>
+            <th style="width:5%"></th>
+          </tr></thead>
+          <tbody>${foodRows}</tbody>
+        </table>
+        <button class="add-food-btn" onclick="addFood('${m.id}')">+ Adicionar alimento</button>
+
+        <div class="macro-pills">
+          <span class="macro-pill mp-kcal">🔥 ${totalKcal} kcal</span>
+          <span class="macro-pill mp-prot">🥩 ${totalProt}g prot</span>
+          <span class="macro-pill mp-carb">🍚 ${totalCarb}g carb</span>
+          <span class="macro-pill mp-gord">🫒 ${totalGord}g gord</span>
+        </div>
+
+        <div class="extras-grid" style="margin-top:12px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">🔄 Substituições</label>
+            <textarea class="ta inp-sm" rows="2" placeholder="Ex: Arroz → batata-doce..." onchange="updateMealField('${m.id}','subs',this.value)">${m.subs||''}</textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">💡 Orientação</label>
+            <textarea class="ta inp-sm" rows="2" placeholder="Dica para esta refeição..." onchange="updateMealField('${m.id}','obs',this.value)">${m.obs||''}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ─── ACTIONS ─── */
+function toggleMealBlock(id) {
+  document.getElementById(`mb-${id}`).classList.toggle('open');
+}
+function updateMealField(id, field, val) {
+  const m = meals.find(m => m.id === id);
+  if (m) { m[field] = val; updateMealsSummary(); updatePreview(); }
+}
+function updateFood(mealId, fi, field, val) {
+  const m = meals.find(m => m.id === mealId);
+  if (m && m.foods[fi]) { m.foods[fi][field] = val; }
+  updateMealsSummary(); updatePreview();
+  // Re-render macros in that block only
+  const mb = document.getElementById(`mb-${mealId}`);
+  if (mb) {
+    const totalKcal = m.foods.reduce((s,f) => s+(f.kcal||0),0);
+    const totalProt = m.foods.reduce((s,f) => s+(f.prot||0),0);
+    const totalCarb = m.foods.reduce((s,f) => s+(f.carb||0),0);
+    const totalGord = m.foods.reduce((s,f) => s+(f.gord||0),0);
+    const pills = mb.querySelector('.macro-pills');
+    if(pills) pills.innerHTML = `
+      <span class="macro-pill mp-kcal">🔥 ${totalKcal} kcal</span>
+      <span class="macro-pill mp-prot">🥩 ${totalProt}g prot</span>
+      <span class="macro-pill mp-carb">🍚 ${totalCarb}g carb</span>
+      <span class="macro-pill mp-gord">🫒 ${totalGord}g gord</span>`;
+    mb.querySelector('.meal-kcal-total').textContent = `~${totalKcal} kcal`;
+  }
+}
+function addFood(mealId) {
+  const m = meals.find(m => m.id === mealId);
+  if (m) { m.foods.push({name:'',qty:'',kcal:0,prot:0,carb:0,gord:0}); }
+  renderMeals();
+  // Reopen the block
+  setTimeout(() => { const mb = document.getElementById(`mb-${mealId}`); if(mb) mb.classList.add('open'); }, 10);
+}
+function deleteFood(mealId, fi) {
+  const m = meals.find(m => m.id === mealId);
+  if (m) { m.foods.splice(fi, 1); }
+  renderMeals();
+  setTimeout(() => { const mb = document.getElementById(`mb-${mealId}`); if(mb) mb.classList.add('open'); }, 10);
+}
+function addMeal() {
+  meals.push({ id:`m${mealCounter++}`, type:'lanche_t', time:'10:00', foods:[], subs:'', obs:'' });
+  renderMeals();
+  // Open the new block
+  setTimeout(() => {
+    const last = document.querySelector('.meal-block:last-of-type');
+    if(last) { last.classList.add('open'); last.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }, 50);
+}
+function deleteMeal(id) {
+  meals = meals.filter(m => m.id !== id);
+  renderMeals(); updatePreview();
+  showToast('Refeição removida');
+}
+
+function updateMealsSummary() {
+  const totalKcal = meals.reduce((s,m) => s + m.foods.reduce((ss,f) => ss+(f.kcal||0), 0), 0);
+  document.getElementById('meals-summary').textContent = `${meals.length} refeições · ${totalKcal} kcal`;
+}
+
+/* ─── PREVIEW ─── */
+function updatePreview() {
+  const title = document.getElementById('plan-title')?.value || '';
+  const patient = document.getElementById('plan-patient')?.value || '';
+  const from = document.getElementById('plan-from')?.value || '';
+  const to = document.getElementById('plan-to')?.value || '';
+  const kcal = document.getElementById('plan-kcal')?.value || '';
+  const prot = document.getElementById('plan-prot')?.value || '';
+  const carb = document.getElementById('plan-carb')?.value || '';
+
+  const totalKcal = meals.reduce((s,m) => s + m.foods.reduce((ss,f) => ss+(f.kcal||0),0),0);
+
+  const mealsHtml = meals.map(m => {
+    const mKcal = m.foods.reduce((s,f) => s+(f.kcal||0),0);
+    const foods = m.foods.filter(f=>f.name).map(f=>`
+      <div class="prev-food-row">
+        <span class="prev-food-name">${f.name}</span>
+        <span class="prev-food-qty">${f.qty}</span>
+      </div>`).join('');
+    return `
+      <div class="preview-meal">
+        <div class="prev-meal-hd">
+          <span class="prev-meal-icon">${MEAL_ICONS[m.type]||'🍽️'}</span>
+          <span class="prev-meal-name">${MEAL_LABELS[m.type]||m.type}</span>
+          <span style="font-size:10.5px;color:var(--txt-soft);margin-right:6px">${m.time}</span>
+          <span class="prev-meal-kcal">~${mKcal} kcal</span>
+        </div>
+        ${foods ? `<div class="prev-foods">${foods}</div>` : ''}
+        ${m.subs ? `<div class="prev-subs">🔄 ${m.subs}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  document.getElementById('preview-content').innerHTML = `
+    <div class="preview-meta-box">
+      <div class="preview-plan-title">${title || 'Título do plano'}</div>
+      <div class="preview-plan-sub">${patient} · ${from ? new Date(from+'T12:00').toLocaleDateString('pt-BR') : ''} a ${to ? new Date(to+'T12:00').toLocaleDateString('pt-BR') : ''}</div>
+      <div class="preview-macros">
+        <span class="macro-pill mp-kcal" style="font-size:11px;padding:2px 7px">🔥 Meta ${kcal} kcal · Real ${totalKcal}</span>
+        <span class="macro-pill mp-prot" style="font-size:11px;padding:2px 7px">🥩 ${prot}g</span>
+        <span class="macro-pill mp-carb" style="font-size:11px;padding:2px 7px">🍚 ${carb}g</span>
+      </div>
+    </div>
+    ${mealsHtml}`;
+}
+
+function saveDraft() {
+  document.getElementById('plan-status-badge').textContent = 'Rascunho';
+  document.getElementById('plan-status-badge').className = 'status-badge status-rascunho';
+  showToast('Rascunho salvo ✓');
+}
+function publishPlan() {
+  const patient = document.getElementById('plan-patient')?.value || 'a paciente';
+  document.getElementById('plan-status-badge').textContent = 'Publicado';
+  document.getElementById('plan-status-badge').className = 'status-badge status-ativo';
+  showToast(`Cardápio publicado para ${patient.split(' ')[0]}! 🌿`);
+}
+
+let toastT;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

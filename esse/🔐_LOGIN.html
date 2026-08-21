@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--creme:#F5EFE6;
+  --choco:#3D2314;--fundo:#F0EBE1;--dourado:#B8922A;--terra:#C4714A;
+  --txt:#2A1F14;--txt-soft:#8A7A6A;--borda:#E2D9CC;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,var(--fundo) 0%,#f5f0e8 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--txt)}
+
+.login-container{width:100%;max-width:420px;padding:24px}
+
+.login-header{text-align:center;margin-bottom:32px}
+
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--choco);letter-spacing:.04em;margin-bottom:4px}
+.logo-sub{font-size:12.5px;color:var(--txt-soft);letter-spacing:.05em;text-transform:uppercase}
+
+.card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:28px;box-shadow:0 4px 20px rgba(61,35,20,.08)}
+
+.card-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:4px;color:var(--choco)}
+.card-sub{font-size:13px;color:var(--txt-soft);margin-bottom:24px;line-height:1.5}
+
+.form-group{margin-bottom:16px;display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-soft)}
+.inp{width:100%;padding:11px 13px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--txt);outline:none;transition:all .15s;background:#fff}
+.inp:focus{border-color:var(--oliva);box-shadow:0 0 0 3px rgba(92,107,58,.08)}
+.inp::placeholder{color:var(--txt-soft)}
+
+.btn{width:100%;padding:12px;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}.btn-pri:active{transform:scale(.98)}
+.btn-sec{background:transparent;color:var(--txt);border:1px solid var(--borda)}.btn-sec:hover{background:var(--fundo)}
+.btn-disabled{opacity:.6;cursor:not-allowed}.btn-loading{pointer-events:none}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--txt-soft)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--borda)}
+.divider-text{font-size:12px}
+
+.form-footer{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;margin-bottom:16px}
+.forgot-link{color:var(--oliva);text-decoration:none;font-weight:500}.forgot-link:hover{text-decoration:underline}
+.remember{display:flex;align-items:center;gap:6px;cursor:pointer}
+.remember input{cursor:pointer}
+
+.form-links{text-align:center;font-size:12.5px;color:var(--txt-soft);margin-top:16px}
+.form-links a{color:var(--oliva);text-decoration:none;font-weight:500}.form-links a:hover{text-decoration:underline}
+
+.invite-box{background:var(--dourado)20;border:1px solid #B8922A;border-radius:var(--r);padding:14px;margin-bottom:20px;font-size:12.5px;line-height:1.6}
+.invite-box strong{color:var(--dourado);display:block;margin-bottom:4px}
+
+.error-box{background:#FFF0F0;border:1px solid #FFCCCC;border-radius:var(--r);padding:12px 14px;margin-bottom:16px;color:#C0392B;font-size:13px;display:none}
+.error-box.show{display:block}
+.success-box{background:#F0FFF0;border:1px solid #C0FFC0;border-radius:var(--r);padding:12px 14px;margin-bottom:16px;color:#2E7D32;font-size:13px;display:none}
+.success-box.show{display:block}
+
+.auth-modes{display:flex;gap:8px;margin-bottom:20px}
+.mode-btn{flex:1;padding:10px;border:2px solid var(--borda);border-radius:var(--r);background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:var(--txt-soft);transition:all .15s}
+.mode-btn.active{border-color:var(--oliva);background:var(--oliva);color:#fff}
+
+.loading-spinner{display:none;text-align:center;padding:20px;color:var(--txt-soft)}
+.loading-spinner.show{display:block}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:12px 18px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+<div class="login-container">
+  <div class="login-header">
+    
+    <div class="logo-text">MADU</div>
+    <div class="logo-sub">Acompanhamento Nutricional</div>
+  </div>
+
+  <div class="card">
+    <!-- MODO: Login vs Cadastro -->
+    <div class="auth-modes" id="auth-modes">
+      <button class="mode-btn active" onclick="switchMode('login')">Entrar</button>
+      <button class="mode-btn" onclick="switchMode('signup')">Começar</button>
+    </div>
+
+    <!-- ══ MODO LOGIN ══ -->
+    <div id="login-form" class="auth-section">
+      <div class="card-title">Bem-vinda de volta</div>
+      <div class="card-sub">Digite seu e-mail e senha para acessar seu acompanhamento</div>
+
+      <div class="error-box" id="error-login"></div>
+      <div class="success-box" id="success-login"></div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="lbl">E-mail</label>
+          <input class="inp" type="email" id="login-email" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="lbl">Senha</label>
+          <input class="inp" type="password" id="login-pass" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-footer">
+          <label class="remember">
+            <input type="checkbox" id="remember-me">
+            <span>Lembrar-me</span>
+          </label>
+          <a href="#" class="forgot-link" onclick="switchMode('recover'); return false">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn btn-pri" id="btn-login">
+          <span>Entrar</span>
+        </button>
+      </form>
+
+      <div class="divider"><span class="divider-text">ou</span></div>
+
+      <p class="form-links">
+        Recebeu um convite? <a href="#" onclick="switchMode('invite'); return false">Validar aqui</a>
+      </p>
+    </div>
+
+    <!-- ══ MODO CADASTRO (Convite) ══ -->
+    <div id="invite-form" class="auth-section" style="display:none">
+      <div class="card-title">Validar convite</div>
+      <div class="card-sub">Você recebeu um convite para iniciar seu acompanhamento com a MADU</div>
+
+      <div class="invite-box">
+        <strong>🌿 Como funciona:</strong>
+        Cole o link que você recebeu por e-mail ou coloque seu e-mail + código de convite abaixo.
+      </div>
+
+      <div class="error-box" id="error-invite"></div>
+      <div class="success-box" id="success-invite"></div>
+
+      <form onsubmit="handleInvite(event)">
+        <div class="form-group">
+          <label class="lbl">E-mail do convite</label>
+          <input class="inp" type="email" id="invite-email" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="lbl">Código do convite</label>
+          <input class="inp" type="text" id="invite-code" placeholder="Ex: abc123def456" required>
+        </div>
+
+        <div class="form-group">
+          <label class="lbl">Crie uma senha</label>
+          <input class="inp" type="password" id="invite-pass" placeholder="Mínimo 8 caracteres" required>
+        </div>
+
+        <button type="submit" class="btn btn-pri" id="btn-invite">
+          <span>Ativar minha conta</span>
+        </button>
+      </form>
+
+      <div class="divider"><span class="divider-text">ou</span></div>
+
+      <p class="form-links">
+        Já tem acesso? <a href="#" onclick="switchMode('login'); return false">Entrar aqui</a>
+      </p>
+    </div>
+
+    <!-- ══ MODO RECUPERAÇÃO DE SENHA ══ -->
+    <div id="recover-form" class="auth-section" style="display:none">
+      <div class="card-title">Recuperar senha</div>
+      <div class="card-sub">Digite seu e-mail para receber um link de redefinição</div>
+
+      <div class="error-box" id="error-recover"></div>
+      <div class="success-box" id="success-recover"></div>
+
+      <form onsubmit="handleRecover(event)">
+        <div class="form-group">
+          <label class="lbl">E-mail</label>
+          <input class="inp" type="email" id="recover-email" placeholder="seu@email.com" required>
+        </div>
+
+        <button type="submit" class="btn btn-pri" id="btn-recover">
+          <span>Enviar link de recuperação</span>
+        </button>
+      </form>
+
+      <p class="form-links" style="margin-top:20px">
+        <a href="#" onclick="switchMode('login'); return false">← Voltar ao login</a>
+      </p>
+    </div>
+
+    <!-- ══ LOADING ══ -->
+    <div class="loading-spinner" id="loading-spinner">
+      <div class="spinner"></div>
+      <div style="margin-top:12px;font-size:13px;color:var(--txt-soft)">Processando...</div>
+    </div>
+  </div>
+
+  <!-- Info footer -->
+  <div style="text-align:center;margin-top:24px;font-size:11.5px;color:var(--txt-soft)">
+    <div>Nutricionista: Maria Eduarda Broering · CRN 10-8836</div>
+    <div style="margin-top:4px">
+      <a href="#" style="color:var(--txt-soft);text-decoration:none;margin:0 8px">Termos</a> ·
+      <a href="#" style="color:var(--txt-soft);text-decoration:none;margin:0 8px">Privacidade</a> ·
+      <a href="#" style="color:var(--txt-soft);text-decoration:none;margin:0 8px">Contato</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ─── SUPABASE CONFIG ───
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentMode = 'login';
+
+/* ─── MODE SWITCH ─── */
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.auth-section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  
+  if (mode === 'login') {
+    document.getElementById('login-form').style.display = 'block';
+    document.querySelector('[onclick*="switchMode(\'login\')"]')?.classList.add('active');
+    document.getElementById('auth-modes').style.display = 'flex';
+  } else if (mode === 'signup') {
+    document.getElementById('invite-form').style.display = 'block';
+    document.querySelector('[onclick*="switchMode(\'signup\')"]')?.classList.add('active');
+    document.getElementById('auth-modes').style.display = 'flex';
+  } else if (mode === 'invite') {
+    document.getElementById('invite-form').style.display = 'block';
+    document.getElementById('auth-modes').style.display = 'none';
+  } else if (mode === 'recover') {
+    document.getElementById('recover-form').style.display = 'block';
+    document.getElementById('auth-modes').style.display = 'none';
+  }
+  
+  clearErrors();
+}
+
+function clearErrors() {
+  document.querySelectorAll('.error-box, .success-box').forEach(b => b.classList.remove('show'));
+}
+
+function showError(mode, msg) {
+  const box = document.getElementById(`error-${mode}`);
+  if (box) { box.textContent = msg; box.classList.add('show'); }
+  showToast(msg, 'error');
+}
+
+function showSuccess(mode, msg) {
+  const box = document.getElementById(`success-${mode}`);
+  if (box) { box.textContent = msg; box.classList.add('show'); }
+  showToast(msg, 'success');
+}
+
+function setLoading(isLoading) {
+  document.getElementById('loading-spinner').classList.toggle('show', isLoading);
+  document.querySelectorAll('.btn').forEach(b => b.disabled = isLoading);
+}
+
+/* ─── LOGIN ─── */
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+
+  if (!email || !pass) { showError('login', 'Preencha e-mail e senha'); return; }
+
+  setLoading(true);
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+
+    showSuccess('login', 'Login bem-sucedido! Redirecionando...');
+    setTimeout(() => {
+      // Redirecionar para a tela principal do paciente
+      window.location.href = 'meb_tela_paciente.html';
+    }, 1500);
+  } catch (err) {
+    console.error('Login error:', err);
+    showError('login', err.message || 'Erro ao fazer login. Verifique suas credenciais.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* ─── VALIDAR CONVITE ─── */
+async function handleInvite(e) {
+  e.preventDefault();
+  const email = document.getElementById('invite-email').value.trim();
+  const code = document.getElementById('invite-code').value.trim();
+  const pass = document.getElementById('invite-pass').value;
+
+  if (!email || !code || !pass) { showError('invite', 'Preencha todos os campos'); return; }
+  if (pass.length < 8) { showError('invite', 'Senha deve ter no mínimo 8 caracteres'); return; }
+
+  setLoading(true);
+  try {
+    // Verificar código de convite no banco
+    const { data: inviteData, error: inviteError } = await supabase
+      .from('invites')
+      .select('*')
+      .eq('email', email)
+      .eq('code', inviteCode)
+      .is('used_at', null)
+      .single();
+    
+    if (inviteError || !inviteData) {
+      throw new Error('Código de convite inválido ou já utilizado');
+    }
+    
+    // Criar usuário no Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: pass,
+      options: { data: { full_name: 'Paciente', invited: true } }
+    });
+    
+    if (error) throw error;
+
+    // Marcar convite como usado
+    // UPDATE invites SET used_at = now() WHERE code = $1
+    
+    showSuccess('invite', 'Conta criada! Redirecionando para onboarding...');
+    setTimeout(() => {
+      // Redirecionar para onboarding
+      window.location.href = '/onboarding.html';
+    }, 1500);
+  } catch (err) {
+    console.error('Invite error:', err);
+    showError('invite', err.message || 'Erro ao validar convite. Verifique o código.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* ─── RECUPERAR SENHA ─── */
+async function handleRecover(e) {
+  e.preventDefault();
+  const email = document.getElementById('recover-email').value.trim();
+
+  if (!email) { showError('recover', 'Digite seu e-mail'); return; }
+
+  setLoading(true);
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+    
+    if (error) throw error;
+
+    showSuccess('recover', `Link de recuperação enviado para ${email}. Verifique seu e-mail!`);
+    setTimeout(() => switchMode('login'), 3000);
+  } catch (err) {
+    console.error('Recover error:', err);
+    showError('recover', err.message || 'Erro ao enviar link. Tente novamente.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* ─── TOAST ─── */
+let toastT;
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  if (type === 'error') el.style.background = '#C0392B';
+  else if (type === 'success') el.style.background = '#2E7D32';
+  else el.style.background = 'var(--choco)';
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ─── CHECK SESSION ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      // Usuário já logado, redirecionar
+      window.location.href = '/app.html';
+    }
+  });
+});
+</script>
+</body>
+</html>

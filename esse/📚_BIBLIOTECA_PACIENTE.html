@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>MÉTODO MEB — Biblioteca</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+
+
+.page{padding:16px;max-width:1000px;margin:0 auto;min-height:calc(100vh - 56px)}
+
+.hero{background:linear-gradient(135deg,var(--oliva) 0%,#6a7a4a 100%);border-radius:var(--r);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero-content{position:relative;z-index:1}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.8)}
+
+.controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-bar{display:flex;gap:8px;background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:8px;flex:1;min-width:150px}
+.search-bar input{border:none;background:transparent;flex:1;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.btn{padding:10px 14px;background:var(--oliva);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:500}
+.btn:hover{background:var(--oliva-lt)}
+
+.filters{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.filter-btn{padding:6px 12px;border:1px solid var(--borda);background:var(--surf);border-radius:16px;cursor:pointer;font-size:12px;white-space:nowrap;transition:all .2s}
+.filter-btn.active{background:var(--oliva);border-color:var(--oliva);color:#fff}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s}
+.card:hover{border-color:var(--oliva);box-shadow:0 4px 12px rgba(92,107,58,.1);transform:translateY(-2px)}
+
+.card-img{width:100%;height:120px;background:linear-gradient(135deg,var(--oliva-bg),var(--dou-bg));display:flex;align-items:center;justify-content:center;font-size:32px}
+
+.card-body{padding:12px}
+.card-type{font-size:10px;color:var(--txt-soft);text-transform:uppercase;font-weight:600}
+.card-title{font-size:13px;font-weight:600;color:var(--txt);margin:6px 0;line-height:1.4}
+.card-desc{font-size:11px;color:var(--txt-soft);line-height:1.4;margin-bottom:8px}
+
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--borda)}
+.card-time{font-size:10px;color:var(--txt-soft)}
+.card-lock{font-size:14px}
+
+.empty{text-align:center;padding:40px 20px;color:var(--txt-soft)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r);width:90%;max-width:500px;max-height:80vh;overflow-y:auto;padding:0}
+.modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border:none;background:transparent;cursor:pointer;font-size:18px;color:var(--txt)}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:11px 16px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Responsive */
+@media (max-width: 480px) {
+  html { font-size: 13px; }
+  .page { padding: 12px; }
+  .grid { grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); }
+  .card-img { height: 100px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  html { font-size: 13px; }
+  .grid { grid-template-columns: repeat(auto-fill,minmax(170px,1fr)); }
+}
+
+@media (min-width: 769px) {
+  html { font-size: 14px; }
+  .grid { grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); }
+}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-title">📚 Sua Biblioteca</div>
+      <div class="hero-sub">Conteúdo exclusivo do seu plano</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" placeholder="Buscar..." oninput="filterContent()">
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setTypeFilter('all')">Todos</button>
+    <button class="filter-btn" onclick="setTypeFilter('video')">🎥 Vídeos</button>
+    <button class="filter-btn" onclick="setTypeFilter('pdf')">📄 PDFs</button>
+    <button class="filter-btn" onclick="setTypeFilter('artigo')">📝 Artigos</button>
+    <button class="filter-btn" onclick="setTypeFilter('receita')">🍽️ Receitas</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid" id="content-grid">
+    <!-- Carregado via JS -->
+  </div>
+
+  <!-- Empty State -->
+  <div id="empty-state" class="empty" style="display:none">
+    <div class="empty-icon">📭</div>
+    <div>Nenhum conteúdo encontrado</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-content" style="padding:20px">
+      <!-- Carregado via JS -->
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allContent = [];
+let currentUser = null;
+let typeFilter = 'all';
+let searchTerm = '';
+
+const ICONS = {
+  'video': '🎥',
+  'pdf': '📄',
+  'artigo': '📝',
+  'receita': '🍽️'
+};
+
+async function loadData() {
+  try {
+    const { data: { user } } = await supabase.auth.getSession();
+    currentUser = user;
+
+    const { data: patient } = await supabase
+      .from('patients')
+      .select('plan')
+      .eq('id', user.id)
+      .single();
+
+    const { data: content } = await supabase
+      .from('library')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    // Filter by plan
+    allContent = (content || []).filter(item => {
+      if (!item.required_plan) return true;
+      return item.required_plan === patient?.plan || item.required_plan === 'gratuito';
+    });
+
+    renderContent();
+  } catch (err) {
+    console.error('Erro:', err);
+  }
+}
+
+function filterContent() {
+  const input = document.querySelector('.search-bar input');
+  searchTerm = input.value.toLowerCase();
+  renderContent();
+}
+
+function setTypeFilter(type) {
+  typeFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderContent();
+}
+
+function renderContent() {
+  let filtered = allContent;
+
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(c => c.type === typeFilter);
+  }
+
+  if (searchTerm) {
+    filtered = filtered.filter(c => 
+      c.title.toLowerCase().includes(searchTerm) || 
+      c.description.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  const grid = document.getElementById('content-grid');
+  const empty = document.getElementById('empty-state');
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(item => `
+    <div class="card" onclick="openModal('${item.id}')">
+      <div class="card-img">${ICONS[item.type] || '📚'}</div>
+      <div class="card-body">
+        <div class="card-type">${item.type}</div>
+        <div class="card-title">${item.title}</div>
+        <div class="card-desc">${item.description}</div>
+        <div class="card-footer">
+          <span class="card-time">${item.duration || '—'}</span>
+          <span class="card-lock">${item.locked ? '🔒' : '✅'}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openModal(itemId) {
+  const item = allContent.find(i => i.id === itemId);
+  if (!item) return;
+
+  const content = `
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:8px">${item.title}</h2>
+    <div style="font-size:11px;color:var(--txt-soft);text-transform:uppercase;margin-bottom:12px">${item.type} • ${item.duration || '—'}</div>
+    <div style="font-size:13px;line-height:1.6;margin-bottom:14px">${item.description}</div>
+    ${item.content ? `<div style="font-size:12px;line-height:1.8;background:var(--fundo);padding:12px;border-radius:6px;margin-bottom:14px">${item.content}</div>` : ''}
+    <button class="btn" onclick="downloadContent('${item.id}')" style="width:100%">⬇️ Download</button>
+  `;
+
+  document.getElementById('modal-content').innerHTML = content;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal')) return;
+  document.getElementById('modal').classList.remove('open');
+}
+
+function downloadContent(itemId) {
+  showToast('✅ Download iniciado!');
+  closeModal();
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

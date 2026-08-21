@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>MÉTODO MEB — Comunidade</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:var(--oliva);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+
+.page{padding:16px;max-width:800px;margin:0 auto;min-height:calc(100vh - 56px)}
+
+.hero{background:linear-gradient(135deg,var(--oliva) 0%,#6a7a4a 100%);border-radius:var(--r);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero-content{position:relative;z-index:1}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5}
+
+.post-form{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:14px;margin-bottom:16px}
+.post-input{width:100%;padding:10px 12px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:60px;outline:none;transition:border-color .2s}
+.post-input:focus{border-color:var(--oliva)}
+.post-btn{background:var(--oliva);color:#fff;border:none;padding:10px 16px;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:500;margin-top:8px;transition:all .2s}
+.post-btn:hover{background:var(--oliva-lt)}
+
+.feed{display:flex;flex-direction:column;gap:12px}
+.post{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:14px;transition:all .2s}
+.post:hover{border-color:var(--oliva);box-shadow:0 2px 8px rgba(92,107,58,.1)}
+
+.post-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.post-avatar{width:36px;height:36px;border-radius:50%;background:var(--oliva-bg);display:flex;align-items:center;justify-content:center;font-size:14px}
+.post-meta{flex:1}
+.post-name{font-size:12px;font-weight:600;color:var(--txt)}
+.post-time{font-size:10px;color:var(--txt-soft)}
+
+.post-content{font-size:13px;line-height:1.6;color:var(--txt);margin-bottom:10px}
+
+.post-category{display:inline-block;padding:2px 8px;background:var(--oliva-bg);color:var(--oliva);border-radius:4px;font-size:10px;font-weight:600;margin-bottom:8px}
+
+.post-actions{display:flex;gap:12px;padding-top:10px;border-top:1px solid var(--borda)}
+.post-action{background:none;border:none;cursor:pointer;font-size:12px;color:var(--txt-soft);display:flex;align-items:center;gap:4px;transition:all .2s}
+.post-action:hover{color:var(--oliva)}
+.post-action.liked{color:var(--terra)}
+
+.empty{text-align:center;padding:40px 20px;color:var(--txt-soft)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:11px 16px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Responsive */
+@media (max-width: 480px) {
+  html { font-size: 13px; }
+  .page { padding: 12px; }
+  .post { padding: 12px; }
+  .post-input { font-size: 13px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  html { font-size: 13px; }
+  .page { padding: 14px; }
+}
+
+@media (min-width: 769px) {
+  html { font-size: 14px; }
+  .page { padding: 16px; }
+}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-title">💚 Nossa Comunidade</div>
+      <div class="hero-sub">Compartilhe suas vitórias e inspire outras mulheres</div>
+    </div>
+  </div>
+
+  <!-- Post Form -->
+  <div class="post-form">
+    <textarea class="post-input" id="post-text" placeholder="Compartilhe sua história, vitória ou dúvida..."></textarea>
+    <select id="post-category" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:var(--r);font-size:12px;margin-top:8px;margin-bottom:8px">
+      <option value="vitoria">🏆 Vitória</option>
+      <option value="motivacao">💪 Motivação</option>
+      <option value="receita">🍽️ Receita</option>
+      <option value="duvida">❓ Dúvida</option>
+      <option value="outro">💬 Outro</option>
+    </select>
+    <button class="post-btn" onclick="createPost()">Compartilhar</button>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed" id="feed-container">
+    <!-- Carregado via JS -->
+  </div>
+
+  <!-- Empty State -->
+  <div id="empty-state" class="empty" style="display:none">
+    <div class="empty-icon">💭</div>
+    <div>Nenhum post ainda. Seja a primeira a compartilhar!</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const CATEGORY_ICONS = {
+  'vitoria': '🏆',
+  'motivacao': '💪',
+  'receita': '🍽️',
+  'duvida': '❓',
+  'outro': '💬'
+};
+
+let posts = [];
+let currentUser = null;
+
+async function loadData() {
+  try {
+    const { data: { user } } = await supabase.auth.getSession();
+    currentUser = user;
+
+    const { data } = await supabase
+      .from('community_posts')
+      .select('*, patient:patient_id(full_name)')
+      .order('created_at', { ascending: false });
+
+    posts = data || [];
+    renderFeed();
+  } catch (err) {
+    console.error('Erro:', err);
+  }
+}
+
+async function createPost() {
+  if (!currentUser) {
+    showToast('Você precisa estar logado');
+    return;
+  }
+
+  const text = document.getElementById('post-text').value.trim();
+  const category = document.getElementById('post-category').value;
+
+  if (!text) {
+    showToast('Escreva algo antes de compartilhar!');
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('community_posts')
+      .insert({
+        patient_id: currentUser.id,
+        content: text,
+        category: category,
+        likes: 0
+      });
+
+    if (error) throw error;
+
+    document.getElementById('post-text').value = '';
+    showToast('✅ Post compartilhado!');
+    loadData();
+  } catch (err) {
+    console.error('Erro:', err);
+    showToast('Erro ao compartilhar');
+  }
+}
+
+function renderFeed() {
+  const container = document.getElementById('feed-container');
+  const empty = document.getElementById('empty-state');
+
+  if (!posts.length) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  container.innerHTML = posts.map(post => {
+    const date = new Date(post.created_at);
+    const timeAgo = getTimeAgo(date);
+    const categoryIcon = CATEGORY_ICONS[post.category] || '💬';
+    const userName = post.patient?.full_name || 'Anônimo';
+    const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2);
+
+    return `
+      <div class="post">
+        <div class="post-header">
+          <div class="post-avatar">${initials}</div>
+          <div class="post-meta">
+            <div class="post-name">${userName}</div>
+            <div class="post-time">${timeAgo}</div>
+          </div>
+        </div>
+        <div class="post-category">${categoryIcon} ${post.category}</div>
+        <div class="post-content">${escapeHtml(post.content)}</div>
+        <div class="post-actions">
+          <button class="post-action" onclick="likePost('${post.id}')">
+            <span>❤️</span>
+            <span>${post.likes || 0}</span>
+          </button>
+          <button class="post-action">
+            <span>💬</span>
+            <span>0</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'agora';
+  if (diffMins < 60) return `${diffMins}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays < 7) return `${diffDays}d`;
+  return date.toLocaleDateString('pt-BR');
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function likePost(postId) {
+  try {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const { error } = await supabase
+      .from('community_posts')
+      .update({ likes: (post.likes || 0) + 1 })
+      .eq('id', postId);
+
+    if (error) throw error;
+    loadData();
+  } catch (err) {
+    console.error('Erro:', err);
+  }
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

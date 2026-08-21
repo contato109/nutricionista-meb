@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Avaliação de Progresso</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;
+  --txt:#2A1F14;--txt-med:#5C4A38;--txt-soft:#8A7A6A;
+  --r:8px;--r-lg:14px;--sh:0 2px 12px rgba(61,35,20,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+.hdr{background:var(--choco);padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--creme);display:flex;align-items:center;gap:9px}
+
+
+.page{padding:20px;max-width:900px;margin:0 auto}
+
+.sec{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden}
+.sec-hd{padding:14px 18px;background:var(--fundo);border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500}
+.sec-body{padding:18px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r);border:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:var(--fundo);color:var(--txt-med);border:1px solid var(--borda)}.btn-sec:hover{background:white}
+
+.timeline{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.timeline-item{border:1px solid var(--borda);border-radius:var(--r-lg);overflow:hidden}
+.timeline-img-wrap{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--oliva-bg) 0%,var(--fundo) 100%);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative}
+.timeline-date{font-size:10px;font-weight:600;color:white;background:rgba(0,0,0,.3);padding:4px 8px;position:absolute;top:10px;left:10px;border-radius:4px}
+.timeline-body{padding:10px 12px}
+.timeline-angle{font-size:10.5px;color:var(--oliva);font-weight:600;margin-bottom:3px}
+.timeline-change{font-size:12px;color:var(--txt-med);margin-bottom:6px}
+.timeline-actions{display:flex;gap:6px;flex-wrap:wrap}
+.timeline-btn{font-size:11px;padding:3px 8px;border:none;background:var(--oliva-bg);color:var(--oliva);border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+
+.upload-zone{border:2px dashed var(--borda);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;margin-bottom:14px}
+.upload-zone:hover{border-color:var(--oliva);background:var(--oliva-bg)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{font-size:36px;margin-bottom:8px}
+.upload-title{font-size:14px;font-weight:500;margin-bottom:2px}
+.upload-sub{font-size:12px;color:var(--txt-soft)}
+
+.angle-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.angle-opt{border:2px solid var(--borda);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:all .15s}
+.angle-opt:hover{border-color:var(--oliva-lt)}
+.angle-opt.sel{border-color:var(--oliva);background:var(--oliva-bg);font-weight:600}
+.angle-icon{font-size:32px;margin-bottom:6px}
+.angle-name{font-size:13px}
+
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.comp-col-hd{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft);margin-bottom:8px}
+.comp-photo{width:100%;aspect-ratio:3/4;background:var(--fundo);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:48px;border:1px solid var(--borda);position:relative}
+.comp-date{position:absolute;bottom:8px;left:8px;font-size:10px;background:rgba(0,0,0,.4);color:white;padding:3px 8px;border-radius:4px}
+.comp-change{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--oliva-bg);border-radius:var(--r);margin-top:10px;font-size:13px;color:var(--oliva);font-weight:600}
+
+.nutri-notes{background:var(--oliva-bg);border:1px solid #B8C89A;border-radius:var(--r);padding:12px;margin-top:10px}
+.notes-title{font-size:11px;font-weight:600;color:var(--oliva);margin-bottom:6px}
+.notes-text{font-size:13px;color:var(--txt-med);line-height:1.5}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(42,31,20,.4);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r-lg);padding:24px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--txt-soft)}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:10px 18px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+
+  <div class="sec">
+    <div class="sec-hd">
+      <span class="sec-title">Suas fotos de progresso</span>
+      <span style="font-size:12px;color:var(--txt-soft)" id="photo-count">3 avaliações</span>
+    </div>
+    <div class="sec-body">
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd"><span class="sec-title">Comparativo detalhado</span></div>
+    <div class="sec-body">
+      <div style="margin-bottom:16px;font-size:13px;color:var(--txt-soft)">Selecione uma foto acima para ver o comparativo lado a lado</div>
+      <div id="comparison-area"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="upload-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:14px">Adicionar nova avaliação</div>
+    <div style="font-size:13px;color:var(--txt-soft);margin-bottom:18px">Siga as orientações para uma avaliação consistente</div>
+
+    <div style="background:var(--oliva-bg);border:1px solid #B8C89A;border-radius:var(--r);padding:12px;margin-bottom:18px;font-size:12.5px;color:var(--txt-med);line-height:1.6">
+      <strong style="color:var(--oliva);display:block;margin-bottom:8px">📸 Orientações:</strong>
+      ✓ Use roupas claras ou biquíni (mesmo padrão)<br>
+      ✓ Mesmo local, iluminação e distância<br>
+      ✓ Posição em pé, braços ao lado do corpo<br>
+      ✓ Evite sombras no corpo
+    </div>
+
+    <div style="margin-bottom:18px">
+      <div style="font-size:11px;font-weight:600;color:var(--txt-soft);margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase">Qual ângulo?</div>
+      <div class="angle-selector">
+        <div class="angle-opt sel" id="ang-frontal" onclick="selAngle(this,'frontal')"><div class="angle-icon">🙋</div><div class="angle-name">Frontal</div></div>
+        <div class="angle-opt" id="ang-lateral" onclick="selAngle(this,'lateral')"><div class="angle-icon">👈</div><div class="angle-name">Lateral</div></div>
+        <div class="angle-opt" id="ang-costas" onclick="selAngle(this,'costas')"><div class="angle-icon">👉</div><div class="angle-name">Costas</div></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <div class="upload-zone" onclick="this.querySelector('input').click()">
+        <input type="file" accept="image/*">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Clique ou arraste a foto</div>
+        <div class="upload-sub">JPG ou PNG, até 5MB</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-sec" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-pri" style="flex:1" onclick="uploadPhoto()">📤 Enviar foto</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+const PHOTOS = [
+  {id:'p1',date:'02/06/2026',angle:'frontal',emoji:'🙋',change:'-0,5 kg',notes:'Ótima semana! Mantendo consistência.'},
+  {id:'p2',date:'12/05/2026',angle:'frontal',emoji:'🙋',change:'-0,8 kg',notes:'Começando a notar diferença nas medidas.'},
+  {id:'p3',date:'01/05/2026',angle:'frontal',emoji:'🙋',change:'Inicial',notes:'Primeira foto — referência.'},
+];
+
+let selectedAngle = 'frontal';
+let selectedPhoto = null;
+
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = PHOTOS.map(p => `
+    <div class="timeline-item" onclick="showComparison('${p.id}')">
+      <div class="timeline-img-wrap">
+        <div class="timeline-date">${p.date}</div>
+        <span>${p.emoji}</span>
+      </div>
+      <div class="timeline-body">
+        <div class="timeline-angle">${p.angle.charAt(0).toUpperCase() + p.angle.slice(1)}</div>
+        <div class="timeline-change">${p.change}</div>
+        <button class="timeline-btn" onclick="event.stopPropagation();deletePhoto('${p.id}')">Remover</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('photo-count').textContent = `${PHOTOS.length} avaliação${PHOTOS.length!==1?'es':''}`;
+}
+
+function showComparison(id) {
+  selectedPhoto = PHOTOS.find(p => p.id === id);
+  if (!selectedPhoto) return;
+
+  const prevIdx = PHOTOS.indexOf(selectedPhoto) + 1;
+  const prev = prevIdx < PHOTOS.length ? PHOTOS[prevIdx] : null;
+
+  let html = `
+    <div class="comparison">
+      <div>
+        <div class="comp-col-hd">Hoje</div>
+        <div class="comp-photo">${selectedPhoto.emoji}<div class="comp-date">${selectedPhoto.date}</div></div>
+        <div class="comp-change">📊 ${selectedPhoto.change}</div>
+      </div>
+      <div>
+        <div class="comp-col-hd">Anterior</div>
+        <div class="comp-photo">${prev ? prev.emoji : '❌'}<div class="comp-date">${prev ? prev.date : 'N/A'}</div></div>
+        <div class="comp-change">📊 ${prev ? prev.change : '—'}</div>
+      </div>
+    </div>`;
+
+  html += `<div class="nutri-notes">
+    <div class="notes-title">💬 Observações da Duda</div>
+    <div class="notes-text">${selectedPhoto.notes}</div>
+  </div>`;
+
+  document.getElementById('comparison-area').innerHTML = html;
+}
+
+function deletePhoto(id) {
+  const idx = PHOTOS.findIndex(p => p.id === id);
+  if (idx >= 0) { PHOTOS.splice(idx, 1); renderTimeline(); showToast('Foto removida'); }
+}
+
+function selAngle(el, angle) {
+  document.querySelectorAll('.angle-opt').forEach(a => a.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedAngle = angle;
+}
+
+function openUploadModal() { document.getElementById('upload-modal').classList.add('open'); }
+function closeModal() { document.getElementById('upload-modal').classList.remove('open'); }
+
+function uploadPhoto() {
+  const angles = {frontal:'🙋',lateral:'👈',costas:'👉'};
+  PHOTOS.unshift({
+    id:`p${Date.now()}`,
+    date:new Date().toLocaleDateString('pt-BR'),
+    angle:selectedAngle,
+    emoji:angles[selectedAngle],
+    change:'-0,3 kg',
+    notes:'Foto enviada. Duda analisará em breve.'
+  });
+  closeModal();
+  renderTimeline();
+  showToast(`Foto ${selectedAngle} enviada com sucesso! 📸`);
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+renderTimeline();
+showComparison('p1');
+</script>
+</body>
+</html>

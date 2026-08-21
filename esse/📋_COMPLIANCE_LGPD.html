@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEB — Termos & Privacidade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --olive: #5C6B3A;
+            --chocolate: #3D2314;
+            --terracota: #B5563A;
+            --gold: #B8922A;
+            --cream: #F5EFE6;
+            --salvia: #C8D4B0;
+            --argila: #E8C8B8;
+            --caramelo: #E8D0A0;
+            --error: #D32F2F;
+            --success: #388E3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #F0E4D4 100%);
+            color: var(--chocolate);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           MODAL WRAPPER
+           ======================================== */
+        .compliance-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .compliance-container {
+            background: white;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+        .compliance-header {
+            background: linear-gradient(135deg, var(--olive) 0%, #6B7A48 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 4px solid var(--terracota);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-container svg {
+            height: 50px;
+            width: auto;
+        }
+
+        .compliance-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .compliance-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* ========================================
+           TABS
+           ======================================== */
+        .compliance-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #E8E8E8;
+            background: #FAFAFA;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 16px 12px;
+            border: none;
+            background: transparent;
+            color: var(--chocolate);
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            background: rgba(92, 107, 58, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--olive);
+            border-bottom-color: var(--terracota);
+            background: white;
+        }
+
+        /* ========================================
+           CONTENT
+           ======================================== */
+        .compliance-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--olive);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--terracota);
+        }
+
+        .tab-content h3 {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--terracota);
+            font-weight: 700;
+        }
+
+        .tab-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .tab-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .tab-content li {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #F5EFE6;
+            border-left: 4px solid var(--terracota);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .success-box {
+            background: #E8F5E9;
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        /* ========================================
+           CONSENT CHECKBOXES
+           ======================================== */
+        .consent-group {
+            margin: 20px 0;
+            padding: 15px;
+            background: #FAFAFA;
+            border-radius: 8px;
+            border: 1px solid #E8E8E8;
+        }
+
+        .consent-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .consent-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .consent-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--terracota);
+            flex-shrink: 0;
+        }
+
+        .consent-label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .required-badge {
+            display: inline-block;
+            background: var(--error);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .optional-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        /* ========================================
+           FOOTER / ACTIONS
+           ======================================== */
+        .compliance-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #E8E8E8;
+            background: #FAFAFA;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #E8E8E8;
+            color: var(--chocolate);
+        }
+
+        .btn-secondary:hover {
+            background: #D0D0D0;
+        }
+
+        .btn-primary {
+            background: var(--olive);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #4D5A2E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(92, 107, 58, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ========================================
+           SUCCESS SCREEN
+           ======================================== */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .success-screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .success-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--olive);
+        }
+
+        .success-screen p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* ========================================
+           RESPONSIVO
+           ======================================== */
+        @media (max-width: 768px) {
+            .compliance-container {
+                width: 98%;
+                max-height: 95vh;
+                border-radius: 8px;
+            }
+
+            .compliance-header {
+                padding: 20px;
+            }
+
+            .compliance-header h1 {
+                font-size: 22px;
+            }
+
+            .compliance-tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                min-width: 100px;
+                padding: 12px 10px;
+                font-size: 12px;
+            }
+
+            .compliance-content {
+                padding: 20px;
+                font-size: 13px;
+            }
+
+            .tab-content h2 {
+                font-size: 18px;
+            }
+
+            .compliance-footer {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 14px;
+            }
+        }
+
+        /* ========================================
+           LOADING
+           ======================================== */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #F0E4D4;
+            border-top: 4px solid var(--olive);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="compliance-modal" id="complianceModal">
+        <div class="compliance-container">
+            <!-- HEADER -->
+            <div class="compliance-header">
+                <!-- Logo MEB -->
+                <div class="logo-container">
+                    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Círculo background -->
+                        <circle cx="60" cy="60" r="58" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+
+                        <!-- Folha 1 (Topo Esquerda) -->
+                        <path d="M 45 35 Q 40 45 45 55 Q 50 50 55 45 Q 50 40 45 35" fill="white" opacity="0.9"/>
+
+                        <!-- Folha 2 (Topo Direita) -->
+                        <path d="M 75 35 Q 80 45 75 55 Q 70 50 65 45 Q 70 40 75 35" fill="white" opacity="0.9"/>
+
+                        <!-- Folha 3 (Centro Esquerda) -->
+                        <path d="M 35 55 Q 30 65 35 75 Q 40 70 45 65 Q 40 60 35 55" fill="white" opacity="0.85"/>
+
+                        <!-- Folha 4 (Centro Direita) -->
+                        <path d="M 85 55 Q 90 65 85 75 Q 80 70 75 65 Q 80 60 85 55" fill="white" opacity="0.85"/>
+
+                        <!-- Folha 5 (Baixo Centro) -->
+                        <path d="M 60 70 Q 55 80 60 90 Q 65 85 70 80 Q 65 75 60 70" fill="white" opacity="0.9"/>
+
+                        <!-- Centro (Ponto) -->
+                        <circle cx="60" cy="60" r="5" fill="white"/>
+                    </svg>
+                </div>
+                <h1>MEB</h1>
+                <p>Termos, Privacidade e Conformidade</p>
+            </div>
+
+            <!-- TABS -->
+            <div class="compliance-tabs">
+                <button class="tab-btn active" data-tab="privacidade">
+                    1. Privacidade
+                </button>
+                <button class="tab-btn" data-tab="consentimento">
+                    2. Consentimento
+                </button>
+                <button class="tab-btn" data-tab="direitos">
+                    3. Seus Direitos
+                </button>
+                <button class="tab-btn" data-tab="criptografia">
+                    4. Criptografia
+                </button>
+                <button class="tab-btn" data-tab="logs">
+                    5. Logs
+                </button>
+                <button class="tab-btn" data-tab="responsabilidade">
+                    6. Responsabilidade
+                </button>
+                <button class="tab-btn" data-tab="contato">
+                    7. Contato
+                </button>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="compliance-content" id="complianceContent">
+                <!-- ABA 1: PRIVACIDADE -->
+                <div class="tab-content active" data-tab="privacidade">
+                    <h2>1. Política de Privacidade</h2>
+
+                    <h3>📋 O que coletamos?</h3>
+                    <p>Ao usar MEB, coletamos:</p>
+                    <ul>
+                        <li><strong>Dados pessoais</strong>: Nome, email, telefone, data de nascimento</li>
+                        <li><strong>Dados de saúde</strong>: Peso, altura, histórico nutricional, restrições alimentares</li>
+                        <li><strong>Fotos de evolução</strong>: Para acompanhamento visual do progresso</li>
+                        <li><strong>Dados de uso</strong>: Quando você acessa, quais funcionalidades usa</li>
+                        <li><strong>Dados de pagamento</strong>: Se aplicável (cartão não é armazenado)</li>
+                    </ul>
+
+                    <h3>🎯 Por quê?</h3>
+                    <ul>
+                        <li>✅ Oferecer serviços de nutrição personalizados</li>
+                        <li>✅ Acompanhar seu progresso</li>
+                        <li>✅ Enviar notificações e lembretes</li>
+                        <li>✅ Melhorar a qualidade do app</li>
+                        <li>✅ Cumprir obrigações legais (LGPD, CFN)</li>
+                    </ul>
+
+                    <h3>🛡️ Como protegemos?</h3>
+                    <ul>
+                        <li>✅ Criptografia 256-bit em trânsito (HTTPS)</li>
+                        <li>✅ Criptografia em repouso (Supabase)</li>
+                        <li>✅ Senhas com hash bcrypt</li>
+                        <li>✅ Backups automáticos diários</li>
+                        <li>✅ Row Level Security — você vê só seus dados</li>
+                    </ul>
+
+                    <h3>📤 Compartilhamos com quem?</h3>
+                    <p><strong>APENAS com:</strong></p>
+                    <ul>
+                        <li>✅ Você mesma (você é dona dos seus dados)</li>
+                        <li>✅ Seus dados de saúde para seu profissional (você escolhe compartilhar)</li>
+                        <li>✅ Provedores técnicos essenciais (Supabase, Resend)</li>
+                    </ul>
+
+                    <div class="info-box">
+                        ⚠️ <strong>Nunca vendemos seus dados</strong> para terceiros, anunciantes ou qualquer outra pessoa.
+                    </div>
+
+                    <h3>⏰ Por quanto tempo guardamos?</h3>
+                    <ul>
+                        <li>✅ <strong>Enquanto você usa o app</strong> — dados ativos</li>
+                        <li>✅ <strong>90 dias após deletar conta</strong> — backups</li>
+                        <li>✅ <strong>1 ano para logs</strong> — segurança</li>
+                    </ul>
+                </div>
+
+                <!-- ABA 2: CONSENTIMENTO LGPD -->
+                <div class="tab-content" data-tab="consentimento">
+                    <h2>2. Consentimento — LGPD</h2>
+
+                    <h3>✅ Você controla tudo!</h3>
+                    <p>Marque apenas o que você concorda. Você pode mudar de ideia quando quiser nas Configurações.</p>
+
+                    <div class="consent-group">
+                        <div class="consent-item">
+                            <input
+                                type="checkbox"
+                                id="consent-essential"
+                                class="consent-checkbox"
+                                checked
+                                disabled
+                            >
+                            <label for="consent-essential" class="consent-label">
+                                <strong>Dados essenciais para nutrição</strong>
+                                <span class="required-badge">OBRIGATÓRIO</span>
+                                <br>
+                                <em>Nome, email, dados de saúde, cardápios, evolução</em>
+                            </label>
+                        </div>
+                    </div>
+
+                    <h3>Opcionais (você escolhe):</h3>
+                    <div class="consent-group">
+                        <div class="consent-item">
+                            <input
+                                type="checkbox"
+                                id="consent-marketing"
+                                class="consent-checkbox"
+                            >
+                            <label for="consent-marketing" class="consent-label">
+                                <strong>Receber novidades e dicas</strong>
+                                <span class="optional-badge">OPCIONAL</span>
+                                <br>
+                                <em>Emails com artigos, receitas, promoções (máx 2/semana)</em>
+                            </label>
+                        </div>
+
+                        <div class="consent-item">
+                            <input
+                                type="checkbox"
+                                id="consent-notifications"
+                                class="consent-checkbox"
+                            >
+                            <label for="consent-notifications" class="consent-label">
+                                <strong>Notificações push</strong>
+                                <span class="optional-badge">OPCIONAL</span>
+                                <br>
+                                <em>Lembretes de refeições, água, atividades</em>
+                            </label>
+                        </div>
+
+                        <div class="consent-item">
+                            <input
+                                type="checkbox"
+                                id="consent-analytics"
+                                class="consent-checkbox"
+                            >
+                            <label for="consent-analytics" class="consent-label">
+                                <strong>Análise de uso anônima</strong>
+                                <span class="optional-badge">OPCIONAL</span>
+                                <br>
+                                <em>Ajuda a melhorar o app (não identificamos você)</em>
+                            </label>
+                        </div>
+
+                        <div class="consent-item">
+                            <input
+                                type="checkbox"
+                                id="consent-research"
+                                class="consent-checkbox"
+                            >
+                            <label for="consent-research" class="consent-label">
+                                <strong>Pesquisa científica</strong>
+                                <span class="optional-badge">OPCIONAL</span>
+                                <br>
+                                <em>Dados anônimos para estudos nutricionais (você é anônimo)</em>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        ✅ Você pode mudar essas opções quando quiser em Configurações → Privacidade
+                    </div>
+                </div>
+
+                <!-- ABA 3: SEUS DIREITOS LGPD -->
+                <div class="tab-content" data-tab="direitos">
+                    <h2>3. Seus Direitos LGPD</h2>
+
+                    <h3>Você tem direito a:</h3>
+
+                    <h3>🔍 Direito de Acesso</h3>
+                    <p><strong>Você pode</strong> ver TODOS seus dados quando quiser.</p>
+                    <p>Em: <strong>Configurações → Meus Dados → Exportar</strong></p>
+                    <p>Formatos: <strong>PDF, CSV ou JSON</strong></p>
+
+                    <h3>✏️ Direito de Correção</h3>
+                    <p><strong>Você pode</strong> corrigir qualquer informação errada.</p>
+                    <p>Basta editar em seu Perfil → Dados Pessoais</p>
+
+                    <h3>🗑️ Direito de Deleção ("Direito ao Esquecimento")</h3>
+                    <p><strong>Você pode</strong> pedir para deletar sua conta e TODOS seus dados.</p>
+                    <p>Em: <strong>Configurações → Conta → Deletar Permanentemente</strong></p>
+                    <p style="color: #d32f2f;">⚠️ <strong>Aviso:</strong> Isso é <strong>irreversível</strong>. Seus dados serão apagados em até 90 dias.</p>
+
+                    <h3>📦 Direito de Portabilidade</h3>
+                    <p><strong>Você pode</strong> baixar uma cópia de TODOS seus dados em formato aberto.</p>
+                    <p>Em: <strong>Configurações → Exportar Dados</strong></p>
+                    <p>Você pode levar para outro app ou profissional.</p>
+
+                    <h3>🚫 Direito de Oposição</h3>
+                    <p><strong>Você pode</strong> se opor ao uso de seus dados para marketing ou análise.</p>
+                    <p>Em: <strong>Configurações → Privacidade → Recusas</strong></p>
+
+                    <div class="info-box">
+                        💡 <strong>Dica:</strong> Todos esses direitos podem ser exercidos respondendo um email para contato@nutricionistameb.com.br
+                    </div>
+
+                    <h3>⏱️ Prazos</h3>
+                    <ul>
+                        <li>✅ Você receberá resposta em até <strong>15 dias úteis</strong></li>
+                        <li>✅ Se for complexo, até <strong>30 dias úteis</strong></li>
+                        <li>✅ Totalmente <strong>GRATUITO</strong></li>
+                    </ul>
+                </div>
+
+                <!-- ABA 4: CRIPTOGRAFIA -->
+                <div class="tab-content" data-tab="criptografia">
+                    <h2>4. Como Protegemos Seus Dados</h2>
+
+                    <h3>🔒 Criptografia em Trânsito</h3>
+                    <p><strong>Quando você se conecta ao app:</strong></p>
+                    <ul>
+                        <li>✅ Protocolo <strong>HTTPS/TLS 1.3</strong> — padrão de banco</li>
+                        <li>✅ Certificado SSL de 256-bit</li>
+                        <li>✅ Seu navegador negocia chave única para sua sessão</li>
+                        <li>✅ Ninguém consegue interceptar sua comunicação</li>
+                    </ul>
+
+                    <h3>💾 Criptografia em Repouso</h3>
+                    <p><strong>Quando seus dados estão armazenados:</strong></p>
+                    <ul>
+                        <li>✅ <strong>Banco de dados Supabase</strong> — criptografia automática</li>
+                        <li>✅ <strong>Senhas</strong> — nunca são salvas em texto plano, apenas hash bcrypt</li>
+                        <li>✅ <strong>Fotos de evolução</strong> — criptografadas no Storage</li>
+                        <li>✅ <strong>Backups</strong> — também criptografados</li>
+                    </ul>
+
+                    <h3>🔐 Senhas</h3>
+                    <p><strong>Sua senha:</strong></p>
+                    <ul>
+                        <li>✅ Nunca é vista por ninguém (nem por nós!)</li>
+                        <li>✅ É transformada em hash com algorithm <strong>bcrypt</strong></li>
+                        <li>✅ Se banco vazar, senhas não servem</li>
+                        <li>✅ Você pode resetar sem nos contar a senha antiga</li>
+                    </ul>
+
+                    <h3>🔄 Backups</h3>
+                    <p><strong>Seus dados têm backup automático:</strong></p>
+                    <ul>
+                        <li>✅ <strong>Diário</strong> — backup automático todo dia 03:00 AM</li>
+                        <li>✅ <strong>Semanal</strong> — 4 semanas de histórico</li>
+                        <li>✅ <strong>Mensal</strong> — 12 meses de histórico</li>
+                        <li>✅ <strong>Tudo criptografado</strong> — sem exceção</li>
+                    </ul>
+
+                    <h3>👤 Row Level Security (RLS)</h3>
+                    <p><strong>Seu acesso é controlado:</strong></p>
+                    <ul>
+                        <li>✅ Você vê <strong>APENAS seus dados</strong></li>
+                        <li>✅ Você vê <strong>APENAS cardápios atribuídos a você</strong></li>
+                        <li>✅ Você vê <strong>APENAS suas notificações</strong></li>
+                        <li>✅ Não é possível hackear para ver dados alheios (implementado no DB)</li>
+                    </ul>
+
+                    <div class="success-box">
+                        ✅ Certificação: MEB atende padrões OWASP Top 10 e NIST Cybersecurity Framework
+                    </div>
+                </div>
+
+                <!-- ABA 5: LOGS -->
+                <div class="tab-content" data-tab="logs">
+                    <h2>5. Logs de Acesso</h2>
+
+                    <h3>📊 Que tipo de log guardamos?</h3>
+                    <ul>
+                        <li><strong>Quem</strong> — seu email/usuário</li>
+                        <li><strong>Quando</strong> — data e hora exata (timezone)</li>
+                        <li><strong>De onde</strong> — IP, navegador, dispositivo</li>
+                        <li><strong>O quê</strong> — qual página/ação acessou</li>
+                        <li><strong>Resultado</strong> — sucesso (✅) ou erro (❌)</li>
+                    </ul>
+
+                    <div class="info-box">
+                        💡 <strong>Exemplo de log:</strong><br>
+                        maria@email.com | 24/06/2026 14:32:45 | Firefox/Windows | /dashboard | ✅ Success<br>
+                        maria@email.com | 24/06/2026 14:35:12 | Firefox/Windows | /cardapios/criar | ✅ Created
+                    </div>
+
+                    <h3>🎯 Para quê?</h3>
+                    <ul>
+                        <li>✅ <strong>Segurança</strong> — detectar acessos suspeitos</li>
+                        <li>✅ <strong>Conformidade</strong> — comprovar acesso legítimo</li>
+                        <li>✅ <strong>Suporte</strong> — resolver problemas seus</li>
+                        <li>✅ <strong>Auditoria</strong> — compliance LGPD</li>
+                    </ul>
+
+                    <h3>⏰ Por quanto tempo?</h3>
+                    <p><strong>1 ano</strong> — depois são deletados automaticamente</p>
+
+                    <h3>📋 Posso ver meus logs?</h3>
+                    <p><strong>Sim!</strong> Em: <strong>Configurações → Segurança → Atividade Recente</strong></p>
+                    <p>Você vê os últimos 30 dias de acessos seus.</p>
+
+                    <h3>🚨 Detectamos acesso suspeito</h3>
+                    <p><strong>Se detectarmos algo estranho, nós:</strong></p>
+                    <ul>
+                        <li>✅ Enviamos email alertando</li>
+                        <li>✅ Pedimos confirmação de novo login</li>
+                        <li>✅ Você pode revogar sessões antigas</li>
+                    </ul>
+                </div>
+
+                <!-- ABA 6: RESPONSABILIDADE -->
+                <div class="tab-content" data-tab="responsabilidade">
+                    <h2>6. Termo de Responsabilidade Profissional</h2>
+
+                    <h3>⚖️ Importante!</h3>
+                    <p><strong>MEB é uma FERRAMENTA de suporte, não substitui profissional real.</strong></p>
+
+                    <div class="info-box">
+                        ⚠️ MEB ajuda você a:
+                        <ul style="margin-top: 10px;">
+                            <li>Organizar cardápios</li>
+                            <li>Acompanhar evolução</li>
+                            <li>Enviar lembretes</li>
+                            <li>Manter registro</li>
+                        </ul>
+                        Mas <strong>não faz diagnóstico nem prescreve tratamentos</strong>.
+                    </div>
+
+                    <h3>👩‍⚕️ Responsabilidade da Nutricionista</h3>
+                    <p><strong>Maria Eduarda Broering — Nutricionista (CRN 8636)</strong> é responsável por:</p>
+                    <ul>
+                        <li>✅ Fazer avaliação nutricional adequada</li>
+                        <li>✅ Prescrever cardápios seguros e eficazes</li>
+                        <li>✅ Seguir código de ética CFN</li>
+                        <li>✅ Documentar tudo corretamente</li>
+                        <li>✅ Atualizar informações regularmente</li>
+                        <li>✅ Responder dúvidas do paciente</li>
+                    </ul>
+
+                    <h3>👤 Sua Responsabilidade como Paciente</h3>
+                    <p><strong>Você é responsável por:</strong></p>
+                    <ul>
+                        <li>✅ Fornecer informações verdadeiras</li>
+                        <li>✅ Seguir as orientações dadas</li>
+                        <li>✅ Reportar problemas de saúde imediatamente</li>
+                        <li>✅ Usar MEB conforme orientado</li>
+                        <li>✅ Não compartilhar sua senha</li>
+                    </ul>
+
+                    <h3>🤖 Responsabilidade do MEB (App)</h3>
+                    <p><strong>MEB é responsável por:</strong></p>
+                    <ul>
+                        <li>✅ Armazenar dados com segurança</li>
+                        <li>✅ Manter app funcionando 99.9% do tempo</li>
+                        <li>✅ Respeitar privacidade e LGPD</li>
+                        <li>✅ Ser ferramenta útil e intuitiva</li>
+                    </ul>
+
+                    <h3>⚠️ O que NÃO é responsabilidade de MEB</h3>
+                    <ul>
+                        <li>❌ Resultados de saúde — isso depende de você seguir cardápio</li>
+                        <li>❌ Diagnóstico de doenças — só profissional</li>
+                        <li>❌ Dados inválidos que você inserir — responsabilidade sua</li>
+                        <li>❌ Dano se você não seguir recomendações</li>
+                    </ul>
+
+                    <h3>📋 Código de Ética CFN</h3>
+                    <p><strong>Nutrition uses MEB honoring:</strong></p>
+                    <ul>
+                        <li>✅ Artigo 1 — Dignidade e respeito ao paciente</li>
+                        <li>✅ Artigo 2 — Responsabilidade científica</li>
+                        <li>✅ Artigo 3 — Confidencialidade</li>
+                        <li>✅ Artigo 4 — Honestidade profissional</li>
+                        <li>✅ Artigo 5 — Respeito à autonomia</li>
+                    </ul>
+                </div>
+
+                <!-- ABA 7: CONTATO -->
+                <div class="tab-content" data-tab="contato">
+                    <h2>7. Informações de Contato</h2>
+
+                    <h3>👩‍⚕️ Nutricionista Responsável</h3>
+                    <p>
+                        <strong>Maria Eduarda Broering</strong><br>
+                        <strong>CRN-8 (Conselho Regional de Nutrição):</strong> 8636<br>
+                        <strong>Formação:</strong> Nutricionista / Pós-graduação em Nutrição Clínica
+                    </p>
+
+                    <h3>📧 Email</h3>
+                    <p>
+                        <strong>contato@nutricionistameb.com.br</strong><br>
+                        <em>Resposta em até 48 horas</em>
+                    </p>
+
+                    <h3>☎️ WhatsApp / Telefone</h3>
+                    <p>
+                        <strong>+55 (49) 99122-799</strong><br>
+                        <em>Segundas a sextas, 09:00 às 18:00</em>
+                    </p>
+
+                    <h3>📍 Localização</h3>
+                    <p>
+                        <strong>Santa Catarina, Brasil</strong><br>
+                        <em>Atendimento online (Zoom, WhatsApp, presencial agendado)</em>
+                    </p>
+
+                    <h3>🔐 Responsável de Privacidade</h3>
+                    <p>
+                        <strong>Email DPO (Data Protection Officer):</strong><br>
+                        contato@nutricionistameb.com.br
+                    </p>
+
+                    <h3>⚖️ Órgãos Competentes</h3>
+                    <ul>
+                        <li><strong>ANPD</strong> — Autoridade Nacional de Proteção de Dados (LGPD)</li>
+                        <li><strong>CFN</strong> — Conselho Federal de Nutricionistas (Ética)</li>
+                        <li><strong>CRN-8</strong> — Conselho Regional de Nutrição SC</li>
+                    </ul>
+
+                    <h3>📞 Fazer Reclamação</h3>
+                    <p><strong>Se encontrar problema de privacidade:</strong></p>
+                    <ul>
+                        <li>1️⃣ Email: contato@nutricionistameb.com.br</li>
+                        <li>2️⃣ WhatsApp: +55 (49) 99122-799</li>
+                        <li>3️⃣ ANPD: https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd</li>
+                    </ul>
+
+                    <h3>📋 Documentos Relacionados</h3>
+                    <ul>
+                        <li>✅ <a href="#" style="color: var(--olive);">Política de Privacidade Completa</a> (PDF)</li>
+                        <li>✅ <a href="#" style="color: var(--olive);">Termos de Serviço</a> (PDF)</li>
+                        <li>✅ <a href="#" style="color: var(--olive);">Termo de Responsabilidade CFN</a> (PDF)</li>
+                        <li>✅ <a href="#" style="color: var(--olive);">Documentação LGPD</a> (PDF)</li>
+                    </ul>
+
+                    <div class="success-box">
+                        ✅ <strong>Última atualização:</strong> 24 de junho de 2026<br>
+                        ✅ <strong>Próxima revisão:</strong> 24 de dezembro de 2026<br>
+                        ✅ <strong>Versão:</strong> 1.0
+                    </div>
+                </div>
+
+                <!-- SUCCESS SCREEN -->
+                <div class="success-screen" id="successScreen">
+                    <div class="success-icon">✅</div>
+                    <h2>Bem-vinda ao MEB!</h2>
+                    <p>Você aceitou nossos termos. Redirecionando para o app...</p>
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="compliance-footer">
+                <button class="btn btn-secondary" id="declineBtn">
+                    Não Aceitar
+                </button>
+                <button class="btn btn-primary" id="acceptBtn" disabled>
+                    ✓ Aceitar Tudo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===============================================
+        // COMPLIANCE APP — LGPD + SUPABASE
+        // ===============================================
+
+        const STORAGE_KEY = 'meb_compliance_accepted';
+        const TIMESTAMP_KEY = 'meb_compliance_timestamp';
+
+        // ========== TAB SYSTEM ==========
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+
+                // Remove ativo de todos
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Adiciona ativo ao clicado
+                button.classList.add('active');
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            });
+        });
+
+        // ========== CONSENT CHECKBOXES ==========
+        const consentCheckboxes = [
+            document.getElementById('consent-marketing'),
+            document.getElementById('consent-notifications'),
+            document.getElementById('consent-analytics'),
+            document.getElementById('consent-research')
+        ];
+        const essentialCheckbox = document.getElementById('consent-essential');
+        const acceptBtn = document.getElementById('acceptBtn');
+
+        // Validar botão
+        function validateConsent() {
+            const essentialChecked = essentialCheckbox.checked;
+            acceptBtn.disabled = !essentialChecked;
+        }
+
+        essentialCheckbox.addEventListener('change', validateConsent);
+        consentCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', validateConsent);
+        });
+
+        // ========== BUTTONS ==========
+        acceptBtn.addEventListener('click', handleAccept);
+        document.getElementById('declineBtn').addEventListener('click', handleDecline);
+
+        async function handleAccept() {
+            // Salvar consentimento em localStorage
+            const consentData = {
+                accepted_at: new Date().toISOString(),
+                essential: essentialCheckbox.checked,
+                marketing: document.getElementById('consent-marketing').checked,
+                notifications: document.getElementById('consent-notifications').checked,
+                analytics: document.getElementById('consent-analytics').checked,
+                research: document.getElementById('consent-research').checked,
+                user_agent: navigator.userAgent,
+                ip: 'pending' // Será preenchido por servidor
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(consentData));
+            localStorage.setItem(TIMESTAMP_KEY, new Date().getTime().toString());
+
+            // Mostrar tela de sucesso
+            document.getElementById('complianceContent').style.display = 'none';
+            document.getElementById('successScreen').classList.add('active');
+            document.querySelector('.compliance-footer').style.display = 'none';
+
+            // Redirect após 3 segundos
+            setTimeout(() => {
+                window.location.href = '/meb_dashboard_redesign.html';
+                // Ou se estiver usando Supabase:
+                // window.location.href = '/dashboard';
+            }, 3000);
+        }
+
+        function handleDecline() {
+            if (confirm('Você tem certeza? Sem aceitar os termos não consegue usar MEB.')) {
+                localStorage.setItem('meb_compliance_declined', 'true');
+                window.location.href = '/';
+            }
+        }
+
+        // ========== CHECK SE JÁ ACEITOU ==========
+        window.addEventListener('load', () => {
+            const accepted = localStorage.getItem(STORAGE_KEY);
+            if (accepted) {
+                console.log('Compliance já foi aceito:', JSON.parse(accepted));
+                // Você pode redirecionar automaticamente
+                // window.location.href = '/dashboard';
+            }
+        });
+
+        // ========== INTEGRATION COM SUPABASE (OPCIONAL) ==========
+        // Descomente para salvar no Supabase automaticamente
+        /*
+        async function saveToDB(consentData) {
+            try {
+                const response = await fetch('/api/compliance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(consentData)
+                });
+                const data = await response.json();
+                console.log('Consentimento salvo:', data);
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+            }
+        }
+        */
+    </script>
+</body>
+</html>

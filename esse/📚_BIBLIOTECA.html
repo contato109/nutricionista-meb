@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Biblioteca MEB</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--choco-med:#5C3A22;--creme:#F5EFE6;
+  --dourado:#B8922A;--dou-bg:#FBF4E3;
+  --terra:#C4714A;--ter-bg:#FAF0EB;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--borda-f:#C8BFB3;
+  --txt:#2A1F14;--txt-med:#5C4A38;--txt-soft:#8A7A6A;
+  --r:8px;--r-lg:14px;--sh:0 2px 12px rgba(61,35,20,.09);--sh-lg:0 6px 28px rgba(61,35,20,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+/* ─ HEADER ─ */
+.hdr{background:var(--choco);padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--creme);display:flex;align-items:center;gap:9px}
+.leaf{width:22px;height:22px;background:var(--oliva);border-radius:50% 50% 50% 0;transform:rotate(-45deg);flex-shrink:0}
+.hdr-title{font-size:13px;color:rgba(245,239,230,.55);flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:var(--surf);color:var(--txt-med);border:1px solid var(--borda)}.btn-sec:hover{background:var(--fundo)}
+.btn-pub{background:var(--dourado);color:#fff}.btn-pub:hover{background:#9A7A22}
+.btn-danger{background:#FFF0EE;color:#C0392B;border:1px solid #FFCCCC}.btn-danger:hover{background:#FFE0DC}
+.btn-ghost-hdr{background:rgba(255,255,255,.08);color:var(--creme);border:1px solid rgba(255,255,255,.12)}.btn-ghost-hdr:hover{background:rgba(255,255,255,.14)}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+
+/* ─ LAYOUT ─ */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
+.sidebar{background:var(--surf);border-right:1px solid var(--borda);padding:16px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.main-area{padding:24px;overflow-y:auto}
+
+/* ─ SIDEBAR ─ */
+.sb-section{margin-bottom:4px}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-soft);padding:8px 16px 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--txt-med);border-left:2px solid transparent;transition:all .15s;position:relative}
+.sb-item:hover{background:var(--fundo);color:var(--txt)}
+.sb-item.active{background:var(--oliva-bg);color:var(--oliva);border-left-color:var(--oliva);font-weight:500}
+.sb-icon{font-size:16px;flex-shrink:0}
+.sb-count{margin-left:auto;font-size:10.5px;background:var(--borda);color:var(--txt-soft);padding:1px 6px;border-radius:8px}
+.sb-divider{height:1px;background:var(--borda);margin:10px 14px}
+.storage-bar{margin:12px 16px 0}
+.storage-label{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-soft);margin-bottom:4px}
+.storage-track{height:5px;background:var(--borda);border-radius:3px;overflow:hidden}
+.storage-fill{height:100%;background:var(--oliva);border-radius:3px;width:23%}
+
+/* ─ MAIN AREA ─ */
+.top-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:8px 12px;flex:1;min-width:200px;max-width:340px;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--oliva)}
+.search-box input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);outline:none;flex:1}
+.search-box input::placeholder{color:var(--txt-soft)}
+.view-toggle{display:flex;background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:3px;gap:2px}
+.vt-btn{width:30px;height:30px;border:none;background:transparent;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txt-soft);transition:all .15s;font-size:15px}
+.vt-btn.active{background:var(--choco);color:white}
+
+/* ─ KPI ROW ─ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.kpi-mini{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden}
+.kpi-mini::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-mini.oliva::before{background:var(--oliva)}
+.kpi-mini.dourado::before{background:var(--dourado)}
+.kpi-mini.terra::before{background:var(--terra)}
+.kpi-mini.choco::before{background:var(--choco-med)}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;line-height:1;margin-bottom:3px}
+.kpi-lbl{font-size:11px;color:var(--txt-soft)}
+
+/* ─ GRID DE CONTEÚDO ─ */
+.content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.content-list{display:flex;flex-direction:column;gap:8px}
+
+/* CARD GRID */
+.c-card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .18s}
+.c-card:hover{border-color:var(--borda-f);box-shadow:var(--sh);transform:translateY(-1px)}
+.c-card-thumb{height:100px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+.c-card-body{padding:12px 14px}
+.c-card-title{font-size:13.5px;font-weight:500;margin-bottom:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c-card-cat{font-size:11.5px;color:var(--txt-soft);margin-bottom:8px}
+.c-card-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.plan-tag{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:8px}
+.pt-caminho{background:var(--dou-bg);color:var(--dourado)}
+.pt-transformacao{background:var(--ter-bg);color:var(--terra)}
+.pt-jornada{background:var(--oliva-bg);color:var(--oliva)}
+.pub-dot{width:7px;height:7px;border-radius:50%;margin-left:auto}
+.pub-dot.pub{background:#4CAF50}
+.pub-dot.unp{background:var(--borda-f)}
+
+/* CARD LIST */
+.c-row{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.c-row:hover{border-color:var(--borda-f);box-shadow:var(--sh)}
+.c-row-icon{width:44px;height:44px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.c-row-info{flex:1;min-width:0}
+.c-row-title{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-row-meta{font-size:11.5px;color:var(--txt-soft);margin-top:1px}
+.c-row-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.views-count{font-size:12px;color:var(--txt-soft);display:flex;align-items:center;gap:3px}
+
+/* ─ DROP ZONE ─ */
+.drop-zone{border:2px dashed var(--borda);border-radius:var(--r-lg);padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:20px}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--oliva);background:var(--oliva-bg)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-icon{font-size:40px;margin-bottom:10px;opacity:.5}
+.drop-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.drop-sub{font-size:12.5px;color:var(--txt-soft)}
+
+/* ─ MODAL ─ */
+.modal-overlay{position:fixed;inset:0;background:rgba(42,31,20,.4);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r-lg);padding:26px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:14px}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft);display:block;margin-bottom:4px}
+.inp,.sel,.ta{width:100%;padding:9px 11px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--txt);outline:none;transition:border-color .15s;background:var(--surf);-webkit-appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--oliva)}
+.ta{resize:vertical;min-height:72px;line-height:1.5}
+.form-group{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* plan selector */
+.plan-sel-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.plan-opt{border:2px solid var(--borda);border-radius:var(--r);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.plan-opt.sel-caminho{border-color:var(--dourado);background:var(--dou-bg)}
+.plan-opt.sel-transformacao{border-color:var(--terra);background:var(--ter-bg)}
+.plan-opt.sel-jornada{border-color:var(--oliva);background:var(--oliva-bg)}
+.plan-opt-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.plan-opt-sub{font-size:10.5px;color:var(--txt-soft)}
+
+/* tags input */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border:1px solid var(--borda);border-radius:var(--r);min-height:38px;cursor:text;transition:border-color .15s}
+.tags-wrap:focus-within{border-color:var(--oliva)}
+.tag-chip{background:var(--oliva-bg);color:var(--oliva);font-size:12px;padding:2px 8px;border-radius:10px;display:flex;align-items:center;gap:4px}
+.tag-chip span{cursor:pointer;font-size:14px;line-height:1;color:var(--oliva-lt)}
+.tag-inp{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;min-width:80px}
+
+/* progress upload */
+.upload-prog{background:var(--fundo);border:1px solid var(--borda);border-radius:var(--r);padding:12px 14px;margin-bottom:12px}
+.prog-name{font-size:13px;font-weight:500;margin-bottom:6px}
+.prog-bar{height:6px;background:var(--borda);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--oliva);border-radius:3px;animation:prog 1.5s ease forwards}
+@keyframes prog{from{width:0}to{width:100%}}
+.prog-meta{font-size:11.5px;color:var(--txt-soft);margin-top:4px}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:10px 18px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;box-shadow:var(--sh-lg)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Filtrar</div>
+      <div class="sb-item active" onclick="setFilter('todos',this)"><span class="sb-icon">📚</span>Todos os conteúdos<span class="sb-count" id="cnt-all">12</span></div>
+      <div class="sb-item" onclick="setFilter('pub',this)"><span class="sb-icon">✅</span>Publicados<span class="sb-count" id="cnt-pub">9</span></div>
+      <div class="sb-item" onclick="setFilter('unp',this)"><span class="sb-icon">⏸</span>Não publicados<span class="sb-count" id="cnt-unp">3</span></div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section">
+      <div class="sb-label">Por plano</div>
+      <div class="sb-item" onclick="setFilter('caminho',this)"><span class="sb-icon">🌱</span>Plano Caminho<span class="sb-count" id="cnt-caminho">5</span></div>
+      <div class="sb-item" onclick="setFilter('transformacao',this)"><span class="sb-icon">🌿</span>Transformação+<span class="sb-count" id="cnt-transf">4</span></div>
+      <div class="sb-item" onclick="setFilter('jornada',this)"><span class="sb-icon">🌳</span>Jornada Completa<span class="sb-count" id="cnt-jornada">3</span></div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section">
+      <div class="sb-label">Por tipo</div>
+      <div class="sb-item" onclick="setFilter('pdf',this)"><span class="sb-icon">📄</span>PDFs</div>
+      <div class="sb-item" onclick="setFilter('video',this)"><span class="sb-icon">🎥</span>Vídeos</div>
+      <div class="sb-item" onclick="setFilter('guia',this)"><span class="sb-icon">📖</span>Guias</div>
+      <div class="sb-item" onclick="setFilter('receita',this)"><span class="sb-icon">🍽️</span>Receitas</div>
+      <div class="sb-item" onclick="setFilter('audio',this)"><span class="sb-icon">🎧</span>Áudios</div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section">
+      <div class="sb-label">Por categoria</div>
+      <div class="sb-item" onclick="setFilter('cat:comportamento',this)"><span class="sb-icon">🧠</span>Comportamento</div>
+      <div class="sb-item" onclick="setFilter('cat:receitas',this)"><span class="sb-icon">👩‍🍳</span>Receitas</div>
+      <div class="sb-item" onclick="setFilter('cat:hormonal',this)"><span class="sb-icon">⚡</span>Saúde hormonal</div>
+      <div class="sb-item" onclick="setFilter('cat:habitos',this)"><span class="sb-icon">✅</span>Hábitos</div>
+      <div class="sb-item" onclick="setFilter('cat:emagrecimento',this)"><span class="sb-icon">⚖️</span>Emagrecimento</div>
+    </div>
+
+    <div class="storage-bar">
+      <div class="storage-label"><span>Armazenamento</span><span>115 MB / 500 MB</span></div>
+      <div class="storage-track"><div class="storage-fill"></div></div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main-area">
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-mini oliva"><div class="kpi-val">12</div><div class="kpi-lbl">Conteúdos totais</div></div>
+      <div class="kpi-mini dourado"><div class="kpi-val">9</div><div class="kpi-lbl">Publicados</div></div>
+      <div class="kpi-mini terra"><div class="kpi-val">247</div><div class="kpi-lbl">Visualizações</div></div>
+      <div class="kpi-mini choco"><div class="kpi-val">115 MB</div><div class="kpi-lbl">Armazenado</div></div>
+    </div>
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--txt-soft);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar conteúdo…" oninput="filterContent(this.value)" id="search-inp">
+      </div>
+      <select class="inp" style="width:auto;padding:8px 12px;font-size:12.5px" onchange="sortContent(this.value)">
+        <option>Mais recentes</option>
+        <option>Mais visualizados</option>
+        <option>A–Z</option>
+      </select>
+      <div class="view-toggle">
+        <button class="vt-btn active" id="vt-grid" onclick="setView('grid',this)" title="Grid">⊞</button>
+        <button class="vt-btn" id="vt-list" onclick="setView('list',this)" title="Lista">☰</button>
+      </div>
+    </div>
+
+    <!-- Drop zone rápida -->
+    <div class="drop-zone" id="drop-zone" ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+      <input type="file" multiple accept=".pdf,.mp4,.mp3,.docx,.xlsx,.jpg,.png" onchange="handleFiles(this.files)">
+      <div class="drop-icon">📂</div>
+      <div class="drop-title">Arraste arquivos aqui ou clique para selecionar</div>
+      <div class="drop-sub">PDF, MP4, MP3, DOCX, imagens — até 100MB por arquivo</div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div id="content-area"></div>
+  </main>
+</div>
+
+<!-- ══ MODAL: ADICIONAR / EDITAR ══ -->
+<div class="modal-overlay" id="add-modal" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title-label">Adicionar conteúdo</div>
+
+    <div class="form-group">
+      <label class="lbl">Tipo de conteúdo</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="type-selector">
+        <button class="btn btn-sec btn-sm type-opt active" data-type="pdf" onclick="selType(this,'pdf')">📄 PDF</button>
+        <button class="btn btn-sec btn-sm type-opt" data-type="video" onclick="selType(this,'video')">🎥 Vídeo</button>
+        <button class="btn btn-sec btn-sm type-opt" data-type="guia" onclick="selType(this,'guia')">📖 Guia</button>
+        <button class="btn btn-sec btn-sm type-opt" data-type="receita" onclick="selType(this,'receita')">🍽️ Receita</button>
+        <button class="btn btn-sec btn-sm type-opt" data-type="audio" onclick="selType(this,'audio')">🎧 Áudio</button>
+        <button class="btn btn-sec btn-sm type-opt" data-type="planilha" onclick="selType(this,'planilha')">📊 Planilha</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="lbl">Título</label>
+      <input class="inp" id="m-title" placeholder="Nome do conteúdo">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="lbl">Categoria</label>
+        <select class="sel" id="m-cat">
+          <option>Comportamento alimentar</option>
+          <option>Receitas saudáveis</option>
+          <option>Saúde hormonal</option>
+          <option>Hábitos e rotina</option>
+          <option>Emagrecimento</option>
+          <option>Suplementação</option>
+          <option>Geral</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Duração (min)</label>
+        <input class="inp" id="m-duration" type="number" placeholder="Ex: 15" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="lbl">Descrição</label>
+      <textarea class="ta" id="m-desc" rows="2" placeholder="Breve descrição do conteúdo…"></textarea>
+    </div>
+
+    <!-- Arquivo ou URL -->
+    <div class="form-group" id="file-field">
+      <label class="lbl">Arquivo</label>
+      <div style="border:2px dashed var(--borda);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer;position:relative;transition:all .15s" onmouseover="this.style.borderColor='var(--oliva)'" onmouseout="this.style.borderColor='var(--borda)'">
+        <input type="file" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewUpload(this)">
+        <div style="font-size:22px;margin-bottom:4px">📁</div>
+        <div style="font-size:13px;font-weight:500" id="file-label">Selecionar arquivo</div>
+        <div style="font-size:11.5px;color:var(--txt-soft)">ou arraste aqui</div>
+      </div>
+    </div>
+    <div id="upload-prog-area"></div>
+
+    <div class="form-group" id="url-field" style="display:none">
+      <label class="lbl">URL do vídeo (YouTube, Vimeo…)</label>
+      <input class="inp" id="m-url" placeholder="https://youtube.com/watch?v=…">
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label class="lbl">Tags</label>
+      <div class="tags-wrap" id="tags-wrap" onclick="document.getElementById('tag-inp').focus()">
+        <input class="tag-inp" id="tag-inp" placeholder="Adicionar tag…" onkeydown="addTagKey(event)">
+      </div>
+    </div>
+
+    <!-- Plano mínimo -->
+    <div class="form-group">
+      <label class="lbl">Acesso mínimo</label>
+      <div class="plan-sel-grid">
+        <div class="plan-opt sel-caminho" id="po-caminho" onclick="selPlan('caminho')">
+          <div class="plan-opt-name" style="color:var(--dourado)">Caminho</div>
+          <div class="plan-opt-sub">Todos os planos</div>
+        </div>
+        <div class="plan-opt" id="po-transformacao" onclick="selPlan('transformacao')">
+          <div class="plan-opt-name" style="color:var(--terra)">Transformação</div>
+          <div class="plan-opt-sub">Transf. + Jornada</div>
+        </div>
+        <div class="plan-opt" id="po-jornada" onclick="selPlan('jornada')">
+          <div class="plan-opt-name" style="color:var(--oliva)">Jornada</div>
+          <div class="plan-opt-sub">Só Jornada</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Publicar -->
+    <div class="form-group" style="margin-bottom:0">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px">
+        <label class="toggle-sm"><input type="checkbox" id="m-publish" checked><span class="toggle-sm-slider"></span></label>
+        <div>
+          <div style="font-weight:500">Publicar imediatamente</div>
+          <div style="font-size:11.5px;color:var(--txt-soft)">Pacientes elegíveis serão notificadas</div>
+        </div>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-sec" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-pub" style="flex:2" onclick="saveContent()">💾 Salvar conteúdo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+/* ─── DATA ─── */
+const TYPE_ICONS = {pdf:'📄',video:'🎥',guia:'📖',receita:'🍽️',audio:'🎧',planilha:'📊'};
+const TYPE_BG = {pdf:'#FFF0F0',video:'#F0F4FF',guia:' #F0F8FF',receita:'#FFF8F0',audio:'#F5F0FF',planilha:'#F0FFF0'};
+
+let LIBRARY = [
+  {id:'l1',type:'pdf',title:'Guia Anti-inflamatório MEB',cat:'Comportamento alimentar',plan:'caminho',pub:true,views:48,size:'2.1 MB',tags:['anti-inflamatório','guia'],desc:'Como reduzir inflamação através da alimentação.'},
+  {id:'l2',type:'pdf',title:'Cardápio Completo Junho 2026',cat:'Geral',plan:'caminho',pub:true,views:32,size:'890 KB',tags:['cardápio','junho'],desc:'Plano alimentar do mês de junho para todas as pacientes.'},
+  {id:'l3',type:'video',title:'Videoaula: Comportamento Alimentar',cat:'Comportamento alimentar',plan:'transformacao',pub:true,views:61,size:'145 MB',tags:['comportamento','comer emocional'],desc:'Como identificar e trabalhar o comer emocional.'},
+  {id:'l4',type:'guia',title:'Guia de Substituições Inteligentes',cat:'Emagrecimento',plan:'caminho',pub:true,views:29,size:'1.3 MB',tags:['substituições','alimentos'],desc:'Lista completa de substituições para cada refeição.'},
+  {id:'l5',type:'receita',title:'10 Receitas Fit para o Café da Manhã',cat:'Receitas saudáveis',plan:'caminho',pub:true,views:77,size:'3.2 MB',tags:['receitas','café da manhã'],desc:'Receitas rápidas, saborosas e equilibradas.'},
+  {id:'l6',type:'audio',title:'Meditação: Atenção Plena ao Comer',cat:'Comportamento alimentar',plan:'transformacao',pub:true,views:19,size:'8.4 MB',tags:['mindful eating','meditação'],desc:'Prática de atenção plena antes das refeições.'},
+  {id:'l7',type:'video',title:'Webinar: Saúde Hormonal Feminina',cat:'Saúde hormonal',plan:'transformacao',pub:true,views:43,size:'210 MB',tags:['hormônios','ciclo menstrual'],desc:'Como a alimentação afeta o equilíbrio hormonal.'},
+  {id:'l8',type:'planilha',title:'Rastreador Semanal de Hábitos',cat:'Hábitos e rotina',plan:'jornada',pub:true,views:15,size:'45 KB',tags:['hábitos','tracker'],desc:'Planilha para monitorar hábitos alimentares semanais.'},
+  {id:'l9',type:'guia',title:'Protocolo de Emagrecimento Hormonal',cat:'Saúde hormonal',plan:'jornada',pub:true,views:12,size:'4.7 MB',tags:['hormônios','emagrecimento'],desc:'Estratégias específicas para emagrecimento feminino.'},
+  {id:'l10',type:'pdf',title:'Receituário Funcional MEB — Vol.2',cat:'Receitas saudáveis',plan:'jornada',pub:false,views:0,size:'6.1 MB',tags:['receitas','funcional'],desc:'Segundo volume de receitas funcionais exclusivas.'},
+  {id:'l11',type:'video',title:'Encontro Gravado — Junho 2026',cat:'Geral',plan:'transformacao',pub:false,views:0,size:'890 MB',tags:['encontro','grupo'],desc:'Gravação do encontro em grupo de junho.'},
+  {id:'l12',type:'audio',title:'Podcast: Dieta vs Estilo de Vida',cat:'Comportamento alimentar',plan:'caminho',pub:false,views:0,size:'18 MB',tags:['podcast','estilo de vida'],desc:'Discussão sobre a diferença entre dieta e comportamento.'},
+];
+
+let currentFilter = 'todos';
+let currentView   = 'grid';
+let currentSearch = '';
+let selectedPlan  = 'caminho';
+let selectedType  = 'pdf';
+let tags = [];
+let editId = null;
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderContent();
+  updateCounts();
+});
+
+/* ─── SIDEBAR ─── */
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  renderContent();
+}
+
+function updateCounts() {
+  document.getElementById('cnt-all').textContent   = LIBRARY.length;
+  document.getElementById('cnt-pub').textContent   = LIBRARY.filter(i=>i.pub).length;
+  document.getElementById('cnt-unp').textContent   = LIBRARY.filter(i=>!i.pub).length;
+  document.getElementById('cnt-caminho').textContent  = LIBRARY.filter(i=>i.plan==='caminho').length;
+  document.getElementById('cnt-transf').textContent   = LIBRARY.filter(i=>i.plan==='transformacao').length;
+  document.getElementById('cnt-jornada').textContent  = LIBRARY.filter(i=>i.plan==='jornada').length;
+}
+
+/* ─── VIEW ─── */
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderContent();
+}
+
+function filterContent(q) { currentSearch = q.toLowerCase(); renderContent(); }
+function sortContent() { renderContent(); }
+
+/* ─── RENDER ─── */
+function getFiltered() {
+  return LIBRARY.filter(i => {
+    const matchSearch = !currentSearch || i.title.toLowerCase().includes(currentSearch) || i.cat.toLowerCase().includes(currentSearch) || (i.tags||[]).some(t=>t.includes(currentSearch));
+    let matchFilter = true;
+    if (currentFilter === 'pub')  matchFilter = i.pub;
+    if (currentFilter === 'unp')  matchFilter = !i.pub;
+    if (['caminho','transformacao','jornada'].includes(currentFilter)) matchFilter = i.plan === currentFilter;
+    if (['pdf','video','guia','receita','audio','planilha'].includes(currentFilter)) matchFilter = i.type === currentFilter;
+    if (currentFilter.startsWith('cat:')) matchFilter = i.cat.toLowerCase().includes(currentFilter.slice(4));
+    return matchSearch && matchFilter;
+  });
+}
+
+function renderContent() {
+  const list = getFiltered();
+  const area = document.getElementById('content-area');
+  if (!list.length) {
+    area.innerHTML = `<div style="text-align:center;padding:48px;color:var(--txt-soft)"><div style="font-size:36px;opacity:.3;margin-bottom:8px">📭</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--txt-med);margin-bottom:4px">Nenhum conteúdo encontrado</div><div style="font-size:12.5px">Ajuste os filtros ou adicione novo conteúdo.</div></div>`;
+    return;
+  }
+  if (currentView === 'grid') {
+    area.innerHTML = `<div class="content-grid">${list.map(i => buildCard(i)).join('')}</div>`;
+  } else {
+    area.innerHTML = `<div class="content-list">${list.map(i => buildRow(i)).join('')}</div>`;
+  }
+}
+
+function buildCard(i) {
+  const planClass = {caminho:'pt-caminho',transformacao:'pt-transformacao',jornada:'pt-jornada'}[i.plan];
+  const planLabel = {caminho:'Caminho',transformacao:'Transformação',jornada:'Jornada'}[i.plan];
+  return `
+    <div class="c-card" onclick="editItem('${i.id}')">
+      <div class="c-card-thumb" style="background:${TYPE_BG[i.type]||'#f5f5f5'}">
+        <span>${TYPE_ICONS[i.type]||'📄'}</span>
+        ${!i.pub ? `<div style="position:absolute;top:8px;right:8px;background:#FFF3CD;color:#856404;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">Rascunho</div>` : ''}
+      </div>
+      <div class="c-card-body">
+        <div class="c-card-title">${i.title}</div>
+        <div class="c-card-cat">${i.cat} · ${i.size}</div>
+        <div class="c-card-footer">
+          <span class="plan-tag ${planClass}">${planLabel}</span>
+          <span style="font-size:11px;color:var(--txt-soft);margin-left:auto">${i.views} views</span>
+          <div class="pub-dot ${i.pub?'pub':'unp'}" title="${i.pub?'Publicado':'Não publicado'}"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildRow(i) {
+  const planClass = {caminho:'pt-caminho',transformacao:'pt-transformacao',jornada:'pt-jornada'}[i.plan];
+  const planLabel = {caminho:'Caminho',transformacao:'Transformação',jornada:'Jornada'}[i.plan];
+  return `
+    <div class="c-row">
+      <div class="c-row-icon" style="background:${TYPE_BG[i.type]||'#f5f5f5'}">${TYPE_ICONS[i.type]||'📄'}</div>
+      <div class="c-row-info">
+        <div class="c-row-title">${i.title}</div>
+        <div class="c-row-meta">${i.cat} · ${i.size} · ${i.tags?.map(t=>`#${t}`).join(' ')}</div>
+      </div>
+      <div class="c-row-right">
+        <span class="plan-tag ${planClass}">${planLabel}</span>
+        <div class="views-count">👁 ${i.views}</div>
+        <div class="pub-dot ${i.pub?'pub':'unp'}"></div>
+        <button class="btn btn-sec btn-sm" onclick="event.stopPropagation();editItem('${i.id}')">✏️ Editar</button>
+        <button class="btn btn-sec btn-sm" onclick="event.stopPropagation();togglePub('${i.id}')">${i.pub?'Despublicar':'Publicar'}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteItem('${i.id}')">🗑</button>
+      </div>
+    </div>`;
+}
+
+/* ─── ACTIONS ─── */
+function togglePub(id) {
+  const item = LIBRARY.find(i=>i.id===id);
+  if (item) { item.pub = !item.pub; renderContent(); updateCounts(); showToast(item.pub ? `"${item.title}" publicado! 📢` : 'Despublicado'); }
+}
+function deleteItem(id) {
+  const item = LIBRARY.find(i=>i.id===id);
+  LIBRARY = LIBRARY.filter(i=>i.id!==id);
+  renderContent(); updateCounts();
+  showToast(`"${item?.title}" removido`);
+}
+
+/* ─── DRAG & DROP ─── */
+function dzOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag'); }
+function dzLeave() { document.getElementById('drop-zone').classList.remove('drag'); }
+function dzDrop(e) {
+  e.preventDefault(); dzLeave();
+  handleFiles(e.dataTransfer.files);
+}
+function openUpload() { document.querySelector('#drop-zone input').click(); }
+function handleFiles(files) {
+  for (const f of files) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    const typeMap = {pdf:'pdf',mp4:'video',mp3:'audio',docx:'guia',xlsx:'planilha',jpg:'guia',png:'guia'};
+    LIBRARY.unshift({
+      id:`l${Date.now()}`,
+      type:typeMap[ext]||'pdf',
+      title:f.name.replace(/\.[^/.]+$/,''),
+      cat:'Geral', plan:'caminho', pub:false,
+      views:0, size:`${(f.size/1048576).toFixed(1)} MB`,
+      tags:[], desc:'',
+    });
+  }
+  renderContent(); updateCounts();
+  showToast(`${files.length} arquivo(s) adicionado(s) como rascunho`);
+}
+
+/* ─── MODAL ─── */
+function openAddModal() {
+  editId = null;
+  document.getElementById('modal-title-label').textContent = 'Adicionar conteúdo';
+  document.getElementById('m-title').value = '';
+  document.getElementById('m-desc').value = '';
+  document.getElementById('m-duration').value = '';
+  document.getElementById('m-url').value = '';
+  document.getElementById('upload-prog-area').innerHTML = '';
+  tags = [];
+  renderTags();
+  selPlan('caminho');
+  selType(document.querySelector('.type-opt'), 'pdf');
+  document.getElementById('add-modal').classList.add('open');
+}
+function editItem(id) {
+  const item = LIBRARY.find(i=>i.id===id);
+  if (!item) return;
+  editId = id;
+  document.getElementById('modal-title-label').textContent = 'Editar conteúdo';
+  document.getElementById('m-title').value = item.title;
+  document.getElementById('m-desc').value  = item.desc;
+  tags = [...(item.tags||[])];
+  renderTags();
+  selPlan(item.plan);
+  document.getElementById('m-publish').checked = item.pub;
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+function closeModalOut(e) { if(e.target===document.getElementById('add-modal')) closeModal(); }
+
+function selPlan(p) {
+  selectedPlan = p;
+  ['caminho','transformacao','jornada'].forEach(k => {
+    document.getElementById(`po-${k}`).className = `plan-opt${p===k?` sel-${k}`:''}`;
+  });
+}
+function selType(btn, type) {
+  selectedType = type || btn?.dataset?.type || 'pdf';
+  document.querySelectorAll('.type-opt').forEach(b => b.classList.remove('active','btn-pri'));
+  if (btn) { btn.classList.add('active','btn-pri'); }
+  document.getElementById('url-field').style.display  = selectedType==='video' ? 'block' : 'none';
+  document.getElementById('file-field').style.display = selectedType==='video' ? 'none' : 'block';
+}
+
+function addTagKey(e) {
+  if ((e.key === 'Enter' || e.key === ',') && e.target.value.trim()) {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(',','');
+    if (val && !tags.includes(val)) { tags.push(val); renderTags(); }
+    e.target.value = '';
+  }
+}
+function removeTag(t) { tags = tags.filter(x=>x!==t); renderTags(); }
+function renderTags() {
+  const wrap = document.getElementById('tags-wrap');
+  const inp  = document.getElementById('tag-inp');
+  wrap.innerHTML = '';
+  tags.forEach(t => {
+    const chip = document.createElement('div');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${t}<span onclick="removeTag('${t}')">×</span>`;
+    wrap.appendChild(chip);
+  });
+  wrap.appendChild(inp);
+}
+
+function previewUpload(input) {
+  const f = input.files[0];
+  if (!f) return;
+  document.getElementById('file-label').textContent = f.name;
+  document.getElementById('m-title').value = document.getElementById('m-title').value || f.name.replace(/\.[^/.]+$/,'');
+  const prog = document.getElementById('upload-prog-area');
+  prog.innerHTML = `<div class="upload-prog"><div class="prog-name">${f.name}</div><div class="prog-bar"><div class="prog-fill"></div></div><div class="prog-meta">${(f.size/1048576).toFixed(1)} MB</div></div>`;
+}
+
+function saveContent() {
+  const title = document.getElementById('m-title').value.trim();
+  if (!title) { showToast('Digite um título'); return; }
+  if (editId) {
+    const item = LIBRARY.find(i=>i.id===editId);
+    if (item) { item.title=title; item.plan=selectedPlan; item.tags=[...tags]; item.pub=document.getElementById('m-publish').checked; item.desc=document.getElementById('m-desc').value; }
+    showToast(`"${title}" atualizado!`);
+  } else {
+    LIBRARY.unshift({id:`l${Date.now()}`,type:selectedType,title,cat:document.getElementById('m-cat').value,plan:selectedPlan,pub:document.getElementById('m-publish').checked,views:0,size:'—',tags:[...tags],desc:document.getElementById('m-desc').value});
+    showToast(`"${title}" adicionado à biblioteca! 📚`);
+  }
+  closeModal();
+  renderContent(); updateCounts();
+}
+
+/* ─── TOAST ─── */
+let toastT;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* toggle-sm */
+document.querySelectorAll('.toggle-sm').forEach(t => {
+  t.querySelector('.toggle-sm-slider') || (() => { const s=document.createElement('span'); s.className='toggle-sm-slider'; t.appendChild(s); })();
+});
+</script>
+</body>
+</html>

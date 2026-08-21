@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Questionários & Anamnese</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--choco-med:#5C3A22;--creme:#F5EFE6;
+  --dourado:#B8922A;--dou-bg:#FBF4E3;
+  --terra:#C4714A;--ter-bg:#FAF0EB;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--borda-f:#C8BFB3;
+  --txt:#2A1F14;--txt-med:#5C4A38;--txt-soft:#8A7A6A;
+  --r:8px;--r-lg:14px;--sh:0 2px 12px rgba(61,35,20,.09);--sh-lg:0 6px 28px rgba(61,35,20,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+/* ─ HEADER ─ */
+.hdr{background:var(--choco);padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--creme);display:flex;align-items:center;gap:9px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:var(--surf);color:var(--txt-med);border:1px solid var(--borda)}.btn-sec:hover{background:var(--fundo)}
+.btn-ghost-hdr{background:rgba(255,255,255,.08);color:var(--creme);border:1px solid rgba(255,255,255,.12)}.btn-ghost-hdr:hover{background:rgba(255,255,255,.14)}
+.btn-pub{background:var(--dourado);color:#fff}.btn-pub:hover{background:#9A7A22}
+.btn-danger{background:#FFF0EE;color:#C0392B;border:1px solid #FFCCCC}.btn-danger:hover{background:#FFE0DC}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+
+/* ─ TABS ─ */
+.tabs-bar{background:var(--surf);border-bottom:1px solid var(--borda);display:flex;padding:0 24px;position:sticky;top:56px;z-index:90}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--txt-soft);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--oliva);border-bottom-color:var(--oliva)}
+.tab-badge{background:var(--terra);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.page{display:none;padding:24px;max-width:1000px;margin:0 auto}
+.page.active{display:block}
+
+/* ─ UTILS ─ */
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft);display:block;margin-bottom:4px}
+.inp,.sel,.ta{width:100%;padding:9px 11px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--txt);outline:none;transition:border-color .15s;background:var(--surf);-webkit-appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--oliva)}
+.ta{resize:vertical;min-height:72px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+
+.card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);overflow:hidden}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;background:var(--fundo)}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500}
+.card-body{padding:18px}
+
+.sec-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-soft);margin-bottom:10px}
+
+/* status chips */
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;white-space:nowrap}
+.chip-pend{background:var(--dou-bg);color:var(--dourado);border:1px solid #EDD68A}
+.chip-resp{background:var(--ter-bg);color:var(--terra);border:1px solid #E8B49A}
+.chip-rev{background:var(--oliva-bg);color:var(--oliva);border:1px solid #B8C89A}
+.chip-nresp{background:#f5f5f5;color:var(--txt-soft);border:1px solid var(--borda)}
+
+/* ─ LISTA DE QUESTIONÁRIOS ─ */
+.q-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+.q-card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .18s}
+.q-card:hover{border-color:var(--borda-f);box-shadow:var(--sh);transform:translateY(-1px)}
+.q-card-stripe{height:3px}
+.q-card-body{padding:14px 16px}
+.q-card-title{font-size:14.5px;font-weight:500;margin-bottom:3px}
+.q-card-meta{font-size:12px;color:var(--txt-soft);margin-bottom:10px}
+.q-card-footer{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--borda)}
+.q-card-stats{flex:1;font-size:12px;color:var(--txt-soft)}
+
+/* ─ ENVIOS TABLE ─ */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-soft);padding:9px 14px;text-align:left;border-bottom:1px solid var(--borda);white-space:nowrap}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--borda);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--fundo)}
+.patient-cell{display:flex;align-items:center;gap:8px}
+.pat-ava{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.pat-name{font-weight:500}
+.pat-plan{font-size:11px;color:var(--txt-soft)}
+.td-actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* ─ BUILDER ─ */
+.builder-layout{display:grid;grid-template-columns:1fr 320px;gap:16px}
+@media(max-width:780px){.builder-layout{grid-template-columns:1fr}}
+.q-builder-questions{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.q-item{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r-lg);overflow:hidden}
+.q-item-hd{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--fundo);border-bottom:1px solid var(--borda)}
+.q-drag{color:var(--borda-f);font-size:16px;cursor:grab}
+.q-num{width:22px;height:22px;border-radius:50%;background:var(--oliva);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.q-item-title-inp{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;color:var(--txt);outline:none}
+.q-type-badge{font-size:10.5px;padding:2px 8px;border-radius:8px;background:var(--oliva-bg);color:var(--oliva);font-weight:500;white-space:nowrap;flex-shrink:0}
+.q-item-body{padding:12px 14px}
+.q-item-footer{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--borda)}
+.toggle-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-soft)}
+.toggle-sm{position:relative;width:32px;height:18px}
+.toggle-sm input{opacity:0;width:0;height:0}
+.toggle-sm-slider{position:absolute;inset:0;background:var(--borda-f);border-radius:9px;cursor:pointer;transition:background .2s}
+.toggle-sm-slider::before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.toggle-sm input:checked+.toggle-sm-slider{background:var(--oliva)}
+.toggle-sm input:checked+.toggle-sm-slider::before{transform:translateX(14px)}
+
+/* opção scale */
+.scale-preview{display:flex;gap:6px;align-items:center;margin-top:8px}
+.scale-num{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--borda);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--txt-soft);cursor:pointer;transition:all .15s}
+.scale-num:hover,.scale-num.sel{background:var(--oliva);border-color:var(--oliva);color:#fff}
+.scale-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-soft);margin-top:4px}
+
+/* opções de múltipla escolha */
+.mc-options{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.mc-opt-row{display:flex;align-items:center;gap:8px}
+.mc-opt-inp{flex:1;padding:6px 9px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.mc-opt-inp:focus{border-color:var(--oliva)}
+.mc-add{font-size:12.5px;color:var(--oliva);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;padding:0}
+
+/* preview lateral */
+.preview-q-list{display:flex;flex-direction:column;gap:10px}
+.pq-item{background:var(--fundo);border:1px solid var(--borda);border-radius:var(--r);padding:10px 12px}
+.pq-num{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--txt-soft);margin-bottom:3px}
+.pq-text{font-size:13px;font-weight:500;color:var(--txt);margin-bottom:6px}
+.pq-input{width:100%;padding:6px 9px;border:1px solid var(--borda);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12.5px;background:#fff;color:var(--txt-soft);pointer-events:none}
+.pq-scale{display:flex;gap:5px}
+.pq-sn{width:26px;height:26px;border-radius:50%;border:1px solid var(--borda);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--txt-soft);background:#fff}
+.pq-mc{display:flex;flex-direction:column;gap:4px}
+.pq-mc-opt{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--txt-soft)}
+.pq-radio{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--borda);flex-shrink:0}
+
+/* ─ RESPOSTAS VIEW ─ */
+.resp-hd{display:flex;align-items:center;gap:14px;padding:16px;background:var(--fundo);border-bottom:1px solid var(--borda)}
+.resp-ava{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:17px;color:#fff}
+.resp-name{font-size:15px;font-weight:500}
+.resp-meta{font-size:12px;color:var(--txt-soft);margin-top:1px}
+.resp-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.resp-item{}
+.resp-q{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--oliva);margin-bottom:5px}
+.resp-a{font-size:14px;color:var(--txt-med);line-height:1.6;background:var(--fundo);border-radius:var(--r);padding:10px 12px}
+.resp-a.highlight{border-left:3px solid var(--terra);background:var(--ter-bg)}
+.nutri-note-box{background:var(--oliva-bg);border:1px solid #B8C89A;border-radius:var(--r);padding:10px 12px;margin-top:6px;display:flex;gap:8px;align-items:flex-start}
+.nutri-note-inp{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt-med);outline:none;min-height:40px;resize:none;line-height:1.5}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:10px 18px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;box-shadow:var(--sh-lg)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ─ EMPTY ─ */
+.empty{text-align:center;padding:48px 20px;color:var(--txt-soft)}
+.empty-icon{font-size:40px;opacity:.35;margin-bottom:10px}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--txt-med);margin-bottom:4px}
+.empty-sub{font-size:12.5px}
+
+/* ─ MODAL ─ */
+.modal-overlay{position:fixed;inset:0;background:rgba(42,31,20,.4);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r-lg);padding:26px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px}
+.modal-sub{font-size:12.5px;color:var(--txt-soft);margin-bottom:18px}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<nav class="tabs-bar">
+  <div class="tab active" id="tab-envios" onclick="setTab('envios')">📬 Envios <span class="tab-badge" id="badge-pend">2</span></div>
+  <div class="tab" id="tab-questionarios" onclick="setTab('questionarios')">📋 Meus questionários</div>
+  <div class="tab" id="tab-builder" onclick="setTab('builder'); initBuilder()">✏️ Editor</div>
+  <div class="tab" id="tab-respostas" onclick="setTab('respostas')">👁 Respostas</div>
+</nav>
+
+<!-- ══ ABA: ENVIOS ══ -->
+<div class="page active" id="page-envios">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500">Envios</div>
+      <div style="font-size:12.5px;color:var(--txt-soft)">Acompanhe o status de cada questionário enviado</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <select class="sel" style="width:auto;font-size:12.5px;padding:6px 10px" id="filter-status" onchange="renderEnvios()">
+        <option value="">Todos os status</option>
+        <option value="pendente">Aguardando resposta</option>
+        <option value="respondido">Respondidos</option>
+        <option value="revisado">Revisados</option>
+      </select>
+      <select class="sel" style="width:auto;font-size:12.5px;padding:6px 10px" id="filter-patient" onchange="renderEnvios()">
+        <option value="">Todas as pacientes</option>
+        <option>Ana Paula Souza</option>
+        <option>Roberta Lima</option>
+        <option>Fernanda Costa</option>
+        <option>Carla Mendes</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Paciente</th>
+          <th>Questionário</th>
+          <th>Enviado em</th>
+          <th>Respondido em</th>
+          <th>Status</th>
+          <th style="text-align:right">Ações</th>
+        </tr></thead>
+        <tbody id="envios-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ABA: QUESTIONÁRIOS ══ -->
+<div class="page" id="page-questionarios">
+  <div style="margin-bottom:16px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:2px">Meus questionários</div>
+    <div style="font-size:12.5px;color:var(--txt-soft)">Modelos criados por você. Clique para editar ou enviar.</div>
+  </div>
+  <div class="q-grid" id="q-grid"></div>
+</div>
+
+<!-- ══ ABA: EDITOR ══ -->
+<div class="page" id="page-builder">
+  <div class="builder-layout">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-hd">
+          <span class="card-title">Dados do questionário</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="lbl">Título</label>
+            <input class="inp" id="b-title" placeholder="Ex: Anamnese inicial, QPC, Avaliação de hábitos…" oninput="updateBuilderPreview()">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="lbl">Categoria</label>
+              <select class="sel" id="b-cat">
+                <option>Anamnese inicial</option>
+                <option>Recordatório alimentar</option>
+                <option>Hábitos alimentares</option>
+                <option>Avaliação de progresso</option>
+                <option>Retorno quinzenal</option>
+                <option>Personalizado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="lbl">Salvar como modelo</label>
+              <label class="toggle-row" style="margin-top:6px">
+                <label class="toggle-sm"><input type="checkbox" id="b-template" checked><span class="toggle-sm-slider"></span></label>
+                Salvar como template reutilizável
+              </label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="lbl">Introdução para a paciente</label>
+            <textarea class="ta" id="b-intro" rows="2" placeholder="Texto exibido antes das perguntas…">Olá! Este questionário nos ajudará a conhecer melhor você e personalizar seu acompanhamento. Responda com calma e honestidade. 🌿</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Perguntas</span>
+          <span id="q-count-label" style="font-size:12px;color:var(--txt-soft)">0 perguntas</span>
+        </div>
+        <div class="card-body" style="padding:14px">
+          <div id="builder-questions"></div>
+          <!-- Botões add -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('texto')">+ Texto livre</button>
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('escala')">+ Escala 1–10</button>
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('multipla')">+ Múltipla escolha</button>
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('simnao')">+ Sim / Não</button>
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('data')">+ Data</button>
+            <button class="btn btn-sec btn-sm" onclick="addQuestion('numero')">+ Número</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-pri" style="flex:1" onclick="saveQuestionario()">💾 Salvar questionário</button>
+            <button class="btn btn-pub" style="flex:1" onclick="openEnvioModal()">📤 Enviar para paciente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview lateral -->
+    <div class="card" style="position:sticky;top:108px;height:fit-content;max-height:calc(100vh - 130px);overflow-y:auto">
+      <div class="card-hd"><span class="card-title" style="font-size:15px">Preview da paciente</span></div>
+      <div style="padding:14px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px" id="prev-title">Título do questionário</div>
+        <div style="font-size:12px;color:var(--txt-soft);margin-bottom:12px;line-height:1.5" id="prev-intro"></div>
+        <div class="preview-q-list" id="preview-questions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ABA: RESPOSTAS ══ -->
+<div class="page" id="page-respostas">
+  <div style="margin-bottom:16px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:2px">Respostas</div>
+    <div style="font-size:12.5px;color:var(--txt-soft)">Clique em um envio respondido para ver as respostas e adicionar observações.</div>
+  </div>
+  <div id="respostas-container"></div>
+</div>
+
+<!-- ══ MODAL: ENVIAR PARA PACIENTE ══ -->
+<div class="modal-overlay" id="envio-modal" onclick="closeEnvioModal(event)">
+  <div class="modal">
+    <div class="modal-title">Enviar questionário</div>
+    <div class="modal-sub">Selecione para quais pacientes enviar este questionário agora.</div>
+    <div class="form-group">
+      <label class="lbl">Questionário</label>
+      <input class="inp" id="modal-q-title" readonly>
+    </div>
+    <div class="form-group">
+      <label class="lbl">Pacientes</label>
+      <div style="display:flex;flex-direction:column;gap:8px;background:var(--fundo);border:1px solid var(--borda);border-radius:var(--r);padding:10px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked> Ana Paula Souza <span class="chip chip-pend" style="margin-left:auto">Caminho</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox"> Roberta Lima <span class="chip chip-rev" style="margin-left:auto">Transformação</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox"> Fernanda Costa <span class="chip chip-rev" style="margin-left:auto">Jornada</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox"> Carla Mendes <span class="chip chip-pend" style="margin-left:auto">Caminho</span></label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="lbl">Prazo para resposta</label>
+      <input class="inp" type="date" id="modal-prazo" value="2026-06-20">
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label class="lbl">Mensagem personalizada (opcional)</label>
+      <textarea class="ta" rows="2" placeholder="Ex: Oi Ana! Por favor responda antes da nossa consulta 🌿"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-sec" style="flex:1" onclick="closeEnvioModal()">Cancelar</button>
+      <button class="btn btn-pub" style="flex:2" onclick="confirmEnvio()">📤 Enviar agora</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+/* ─── DATA ─── */
+const PATIENTS = [
+  {name:'Ana Paula Souza',  initials:'AS', color:'#C4714A', plan:'Caminho'},
+  {name:'Roberta Lima',     initials:'RL', color:'#5C6B3A', plan:'Transformação'},
+  {name:'Fernanda Costa',   initials:'FC', color:'#B8922A', plan:'Jornada'},
+  {name:'Carla Mendes',     initials:'CM', color:'#7A8C52', plan:'Caminho'},
+];
+
+const QUESTIONARIOS = [
+  { id:'q1', title:'Anamnese Inicial Completa', cat:'Anamnese inicial', qs:12, cor:'#5C6B3A',
+    desc:'Histórico de saúde, hábitos alimentares, rotina, objetivos e restrições.' },
+  { id:'q2', title:'Recordatório Alimentar 24h', cat:'Recordatório alimentar', qs:8, cor:'#B8922A',
+    desc:'Tudo que a paciente comeu no dia anterior, com horários e quantidades.' },
+  { id:'q3', title:'Avaliação de Hábitos Quinzenal', cat:'Retorno quinzenal', qs:6, cor:'#C4714A',
+    desc:'Adesão ao cardápio, emoções, sono, hidratação e exercício nas últimas 2 semanas.' },
+  { id:'q4', title:'QPC — Qualidade de Vida', cat:'Personalizado', qs:10, cor:'#3D2314',
+    desc:'Questionário de qualidade de vida e bem-estar percebido.' },
+];
+
+const ENVIOS = [
+  { id:'e1', patient:0, q:'Anamnese Inicial Completa', sent:'02/06/2026', answered:'03/06/2026', status:'revisado' },
+  { id:'e2', patient:1, q:'Avaliação de Hábitos Quinzenal', sent:'08/06/2026', answered:'09/06/2026', status:'respondido' },
+  { id:'e3', patient:2, q:'Recordatório Alimentar 24h', sent:'10/06/2026', answered:null, status:'pendente' },
+  { id:'e4', patient:3, q:'Anamnese Inicial Completa', sent:'11/06/2026', answered:null, status:'pendente' },
+  { id:'e5', patient:0, q:'Avaliação de Hábitos Quinzenal', sent:'01/06/2026', answered:'02/06/2026', status:'revisado' },
+];
+
+const RESPOSTAS_SAMPLE = [
+  { q:'Qual é seu principal objetivo com o acompanhamento nutricional?', a:'Quero emagrecer de forma saudável e melhorar minha energia no dia a dia.', flag:false },
+  { q:'Com que frequência você pratica atividade física?', a:'Academia 3x por semana, caminhada nos fins de semana.', flag:false },
+  { q:'Você tem alguma restrição alimentar ou alergia?', a:'Intolerância à lactose leve.', flag:true },
+  { q:'Como você avalia sua qualidade de sono? (1–10)', a:'6', flag:false },
+  { q:'Descreva o que você costuma comer no café da manhã.', a:'Café com leite, pão francês com margarina. Às vezes pulo o café.', flag:true },
+  { q:'Você consome bebidas alcoólicas? Com que frequência?', a:'Socialmente, em média 1x por semana nos fins de semana.', flag:false },
+];
+
+/* ─── BUILDER STATE ─── */
+let builderQuestions = [];
+let qCounter = 1;
+
+const Q_TYPE_LABELS = {
+  texto:'Texto livre', escala:'Escala 1–10',
+  multipla:'Múltipla escolha', simnao:'Sim / Não',
+  data:'Data', numero:'Número'
+};
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderEnvios();
+  renderQuestionarios();
+  renderRespostas();
+  initBuilder();
+});
+
+/* ─── TABS ─── */
+function setTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+}
+
+/* ─── ENVIOS ─── */
+function renderEnvios() {
+  const filterStatus  = document.getElementById('filter-status')?.value  || '';
+  const filterPatient = document.getElementById('filter-patient')?.value || '';
+  const statusMap = { pendente:'chip-pend', respondido:'chip-resp', revisado:'chip-rev' };
+  const statusLabel = { pendente:'Aguardando', respondido:'Respondido', revisado:'Revisado' };
+
+  let list = ENVIOS.filter(e => {
+    const pat = PATIENTS[e.patient];
+    return (!filterStatus || e.status === filterStatus)
+      && (!filterPatient || pat.name === filterPatient);
+  });
+
+  const pending = ENVIOS.filter(e => e.status === 'pendente').length;
+  document.getElementById('badge-pend').textContent = pending;
+
+  const tbody = document.getElementById('envios-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--txt-soft)">Nenhum envio encontrado</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(e => {
+    const pat = PATIENTS[e.patient];
+    return `
+      <tr>
+        <td>
+          <div class="patient-cell">
+            <div class="pat-ava" style="background:${pat.color}">${pat.initials}</div>
+            <div><div class="pat-name">${pat.name}</div><div class="pat-plan">${pat.plan}</div></div>
+          </div>
+        </td>
+        <td style="font-weight:500">${e.q}</td>
+        <td style="color:var(--txt-soft)">${e.sent}</td>
+        <td style="color:var(--txt-soft)">${e.answered || '—'}</td>
+        <td><span class="chip ${statusMap[e.status]}">${statusLabel[e.status]}</span></td>
+        <td>
+          <div class="td-actions">
+            ${e.status !== 'pendente' ? `<button class="btn btn-sec btn-sm" onclick="viewResposta('${e.id}')">Ver respostas</button>` : ''}
+            <button class="btn btn-sec btn-sm" onclick="showToast('Lembrete enviado para ${pat.name.split(' ')[0]}!')">Reenviar</button>
+            <button class="btn btn-danger btn-sm" onclick="showToast('Envio cancelado')">✕</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+/* ─── QUESTIONÁRIOS ─── */
+function renderQuestionarios() {
+  const grid = document.getElementById('q-grid');
+  grid.innerHTML = QUESTIONARIOS.map(q => `
+    <div class="q-card" onclick="editQ('${q.id}')">
+      <div class="q-card-stripe" style="background:${q.cor}"></div>
+      <div class="q-card-body">
+        <div class="q-card-title">${q.title}</div>
+        <div class="q-card-meta">${q.cat} · ${q.qs} perguntas</div>
+        <div style="font-size:12.5px;color:var(--txt-soft);line-height:1.5">${q.desc}</div>
+      </div>
+      <div class="q-card-footer">
+        <span class="q-card-stats">${q.qs} perguntas</span>
+        <button class="btn btn-sec btn-sm" onclick="event.stopPropagation();openEnvioModal('${q.title}')">📤 Enviar</button>
+        <button class="btn btn-pri btn-sm" onclick="event.stopPropagation();editQ('${q.id}')">✏️ Editar</button>
+      </div>
+    </div>`).join('') + `
+    <div class="q-card" style="border-style:dashed;cursor:pointer;min-height:140px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--txt-soft)" onclick="setTab('builder');initBuilder()">
+      <div style="font-size:32px;opacity:.3">+</div>
+      <div style="font-size:13.5px;font-weight:500">Criar novo questionário</div>
+    </div>`;
+}
+
+function editQ(id) {
+  setTab('builder');
+  document.getElementById('b-title').value = QUESTIONARIOS.find(q=>q.id===id)?.title || '';
+  // Load sample questions for demo
+  initBuilder();
+  showToast('Questionário carregado para edição');
+}
+
+/* ─── BUILDER ─── */
+function initBuilder() {
+  builderQuestions = [
+    { id:`bq${qCounter++}`, type:'texto', text:'Qual é seu principal objetivo com o acompanhamento nutricional?', required:true, options:[] },
+    { id:`bq${qCounter++}`, type:'escala', text:'Como você avalia sua qualidade de sono? (1 = péssimo, 10 = ótimo)', required:false, options:[] },
+    { id:`bq${qCounter++}`, type:'multipla', text:'Com que frequência você pratica atividade física?', required:true, options:['Nunca','1–2x por semana','3–4x por semana','Todo dia'] },
+    { id:`bq${qCounter++}`, type:'simnao', text:'Você tem alguma restrição alimentar ou alergia?', required:true, options:[] },
+    { id:`bq${qCounter++}`, type:'texto', text:'Descreva o que você costuma comer no café da manhã.', required:false, options:[] },
+  ];
+  renderBuilder();
+  updateBuilderPreview();
+}
+
+function addQuestion(type) {
+  builderQuestions.push({
+    id:`bq${qCounter++}`, type,
+    text:'', required:false,
+    options: type==='multipla' ? ['Opção 1','Opção 2'] : [],
+  });
+  renderBuilder();
+  updateBuilderPreview();
+  // focus last
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.q-item-title-inp');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
+}
+
+function renderBuilder() {
+  const container = document.getElementById('builder-questions');
+  document.getElementById('q-count-label').textContent = `${builderQuestions.length} pergunta${builderQuestions.length!==1?'s':''}`;
+
+  container.innerHTML = builderQuestions.map((q,i) => {
+    let bodyHtml = '';
+    if (q.type === 'escala') {
+      bodyHtml = `<div class="scale-preview">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="scale-num">${n}</div>`).join('')}</div><div class="scale-labels"><span>Péssimo</span><span>Ótimo</span></div>`;
+    } else if (q.type === 'multipla') {
+      bodyHtml = `<div class="mc-options" id="mc-${q.id}">
+        ${q.options.map((opt,oi)=>`
+          <div class="mc-opt-row">
+            <span style="font-size:13px;color:var(--borda-f)">○</span>
+            <input class="mc-opt-inp" value="${opt}" placeholder="Opção ${oi+1}" onchange="updateMCOption('${q.id}',${oi},this.value)">
+            <button class="del-food" onclick="removeMCOption('${q.id}',${oi})" style="width:24px;height:24px;border:none;background:transparent;cursor:pointer;color:var(--txt-soft)">×</button>
+          </div>`).join('')}
+        <button class="mc-add" onclick="addMCOption('${q.id}')">+ Adicionar opção</button>
+      </div>`;
+    } else if (q.type === 'simnao') {
+      bodyHtml = `<div style="display:flex;gap:8px;margin-top:6px">
+        <div style="padding:6px 18px;border:1.5px solid var(--oliva);border-radius:20px;font-size:13px;color:var(--oliva);font-weight:500">Sim</div>
+        <div style="padding:6px 18px;border:1.5px solid var(--borda);border-radius:20px;font-size:13px;color:var(--txt-soft)">Não</div>
+      </div>`;
+    } else if (q.type === 'data') {
+      bodyHtml = `<input class="inp" type="date" style="max-width:200px;margin-top:6px;pointer-events:none">`;
+    } else if (q.type === 'numero') {
+      bodyHtml = `<input class="inp" type="number" style="max-width:140px;margin-top:6px;pointer-events:none" placeholder="0">`;
+    } else {
+      bodyHtml = `<textarea class="ta" style="min-height:50px;margin-top:6px;pointer-events:none" placeholder="Resposta da paciente…"></textarea>`;
+    }
+
+    return `
+      <div class="q-item" id="qi-${q.id}">
+        <div class="q-item-hd">
+          <span class="q-drag">⠿</span>
+          <span class="q-num">${i+1}</span>
+          <input class="q-item-title-inp" value="${q.text}" placeholder="Digite a pergunta…" oninput="updateQText('${q.id}',this.value)">
+          <span class="q-type-badge">${Q_TYPE_LABELS[q.type]}</span>
+          <button style="border:none;background:transparent;cursor:pointer;color:var(--txt-soft);font-size:16px;padding:0 2px" onclick="removeQuestion('${q.id}')">×</button>
+        </div>
+        <div class="q-item-body">${bodyHtml}</div>
+        <div class="q-item-footer">
+          <label class="toggle-row">
+            <label class="toggle-sm"><input type="checkbox" ${q.required?'checked':''} onchange="toggleRequired('${q.id}',this.checked)"><span class="toggle-sm-slider"></span></label>
+            Obrigatória
+          </label>
+          <button class="btn btn-sec btn-sm" style="margin-left:auto" onclick="duplicateQ('${q.id}')">Duplicar</button>
+          <button class="btn btn-danger btn-sm" onclick="removeQuestion('${q.id}')">Remover</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateQText(id, val) { const q = builderQuestions.find(q=>q.id===id); if(q) q.text=val; updateBuilderPreview(); }
+function toggleRequired(id, val) { const q = builderQuestions.find(q=>q.id===id); if(q) q.required=val; }
+function removeQuestion(id) { builderQuestions = builderQuestions.filter(q=>q.id!==id); renderBuilder(); updateBuilderPreview(); }
+function duplicateQ(id) { const q = builderQuestions.find(q=>q.id===id); if(q) { builderQuestions.push({...q,id:`bq${qCounter++}`}); renderBuilder(); updateBuilderPreview(); } }
+function addMCOption(id) { const q = builderQuestions.find(q=>q.id===id); if(q) { q.options.push(`Opção ${q.options.length+1}`); renderBuilder(); } }
+function removeMCOption(id,i) { const q = builderQuestions.find(q=>q.id===id); if(q) { q.options.splice(i,1); renderBuilder(); } }
+function updateMCOption(id,i,val) { const q = builderQuestions.find(q=>q.id===id); if(q) q.options[i]=val; updateBuilderPreview(); }
+
+function updateBuilderPreview() {
+  document.getElementById('prev-title').textContent = document.getElementById('b-title')?.value || 'Título do questionário';
+  document.getElementById('prev-intro').textContent = document.getElementById('b-intro')?.value || '';
+  const list = document.getElementById('preview-questions');
+  if (!list) return;
+  list.innerHTML = builderQuestions.map((q,i) => {
+    let ansHtml = '';
+    if (q.type==='escala') {
+      ansHtml = `<div class="pq-scale">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="pq-sn">${n}</div>`).join('')}</div>`;
+    } else if (q.type==='multipla') {
+      ansHtml = `<div class="pq-mc">${(q.options||[]).map(o=>`<div class="pq-mc-opt"><div class="pq-radio"></div>${o}</div>`).join('')}</div>`;
+    } else if (q.type==='simnao') {
+      ansHtml = `<div style="display:flex;gap:6px"><div class="pq-mc-opt"><div class="pq-radio"></div>Sim</div><div class="pq-mc-opt" style="margin-left:10px"><div class="pq-radio"></div>Não</div></div>`;
+    } else {
+      ansHtml = `<input class="pq-input" placeholder="Resposta…">`;
+    }
+    return `
+      <div class="pq-item">
+        <div class="pq-num">${i+1}${q.required?' *':''}</div>
+        <div class="pq-text">${q.text||'Pergunta…'}</div>
+        ${ansHtml}
+      </div>`;
+  }).join('');
+}
+
+function saveQuestionario() {
+  const title = document.getElementById('b-title')?.value;
+  if (!title) { showToast('Digite um título para o questionário'); return; }
+  QUESTIONARIOS.push({ id:`q${Date.now()}`, title, cat:document.getElementById('b-cat')?.value, qs:builderQuestions.length, cor:'#5C6B3A', desc:'' });
+  renderQuestionarios();
+  showToast(`Questionário "${title}" salvo! 📋`);
+}
+
+/* ─── RESPOSTAS ─── */
+function renderRespostas() {
+  const container = document.getElementById('respostas-container');
+  const respondidos = ENVIOS.filter(e => e.status !== 'pendente');
+  if (!respondidos.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Nenhuma resposta ainda</div><div class="empty-sub">As respostas aparecerão aqui quando as pacientes responderem.</div></div>`;
+    return;
+  }
+  container.innerHTML = respondidos.map(e => {
+    const pat = PATIENTS[e.patient];
+    return `
+      <div class="card" style="margin-bottom:14px">
+        <div class="resp-hd">
+          <div class="resp-ava" style="background:${pat.color}">${pat.initials}</div>
+          <div>
+            <div class="resp-name">${pat.name}</div>
+            <div class="resp-meta">${e.q} · Respondido em ${e.answered}</div>
+          </div>
+          <span class="chip ${e.status==='revisado'?'chip-rev':'chip-resp'}" style="margin-left:auto">${e.status==='revisado'?'Revisado':'Respondido'}</span>
+          <button class="btn btn-pri btn-sm" onclick="markRevisado('${e.id}')">✓ Marcar revisado</button>
+        </div>
+        <div class="resp-body">
+          ${RESPOSTAS_SAMPLE.map((r,i) => `
+            <div class="resp-item">
+              <div class="resp-q">${i+1}. ${r.q}</div>
+              <div class="resp-a${r.flag?' highlight':''}">${r.a} ${r.flag?'<span style="font-size:11px;opacity:.6">⚠ Atenção</span>':''}</div>
+              <div class="nutri-note-box">
+                <span style="font-size:13px;color:var(--oliva)">🌿</span>
+                <textarea class="nutri-note-inp" placeholder="Adicionar observação clínica…" rows="1"></textarea>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function viewResposta(id) {
+  setTab('respostas');
+  showToast('Carregando respostas…');
+}
+
+function markRevisado(id) {
+  const e = ENVIOS.find(e=>e.id===id);
+  if(e) e.status='revisado';
+  renderEnvios();
+  renderRespostas();
+  showToast('Marcado como revisado ✓');
+}
+
+/* ─── MODAL ENVIO ─── */
+function openEnvioModal(title) {
+  const t = title || document.getElementById('b-title')?.value || 'Questionário';
+  document.getElementById('modal-q-title').value = t;
+  document.getElementById('envio-modal').classList.add('open');
+}
+function closeEnvioModal(e) {
+  if (!e || e.target === document.getElementById('envio-modal')) {
+    document.getElementById('envio-modal').classList.remove('open');
+  }
+}
+function confirmEnvio() {
+  closeEnvioModal();
+  showToast('Questionário enviado para as pacientes selecionadas! 📤');
+}
+
+/* ─── TOAST ─── */
+let toastT;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

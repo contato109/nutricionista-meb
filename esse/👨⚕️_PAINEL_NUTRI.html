@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MADU — Painel da Nutricionista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   TOKENS — Identidade Visual MADU
+   ============================================= */
+:root {
+  --verde-oliva:   #5C6B3A;
+  --oliva-claro:   #7A8C52;
+  --oliva-fundo:   #EEF0E8;
+  --chocolate:     #3D2314;
+  --chocolate-med: #5C3A22;
+  --creme:         #F5EFE6;
+  --dourado:       #B8922A;
+  --dourado-fundo: #FBF4E3;
+  --terracota:     #C4714A;
+  --terra-fundo:   #FAF0EB;
+  --fundo:         #F0EBE1;
+  --superficie:    #FFFFFF;
+  --borda:         #E2D9CC;
+  --borda-forte:   #C8BFB3;
+  --texto:         #2A1F14;
+  --texto-med:     #5C4A38;
+  --texto-suave:   #8A7A6A;
+  --sombra-sm:     0 1px 3px rgba(61,35,20,.08);
+  --sombra-md:     0 4px 16px rgba(61,35,20,.10);
+  --sombra-lg:     0 8px 32px rgba(61,35,20,.14);
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --sidebar-w: 240px;
+  --header-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--chocolate);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 100;
+  transition: transform .25s ease;
+}
+
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--creme);
+  letter-spacing: 0.04em;
+}
+.logo-sub {
+  font-size: 11px;
+  color: rgba(245,239,230,.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-left: 42px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+}
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,239,230,.3);
+  padding: 16px 20px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(245,239,230,.65);
+  font-size: 13.5px;
+  font-weight: 400;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+  text-decoration: none;
+  position: relative;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,.05);
+  color: var(--creme);
+}
+.nav-item.active {
+  color: var(--creme);
+  background: rgba(255,255,255,.07);
+  border-left-color: var(--dourado);
+  font-weight: 500;
+}
+.nav-icon {
+  width: 18px; height: 18px;
+  opacity: .8;
+  flex-shrink: 0;
+}
+.nav-badge {
+  margin-left: auto;
+  background: var(--terracota);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.sidebar-user {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.sidebar-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--verde-oliva);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  color: var(--creme);
+  flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--creme);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-user-role {
+  font-size: 11px;
+  color: rgba(245,239,230,.4);
+}
+
+/* =============================================
+   MAIN LAYOUT
+   ============================================= */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.header {
+  height: var(--header-h);
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-title {
+  flex: 1;
+}
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--texto);
+}
+.page-date {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  width: 260px;
+  transition: border-color .15s;
+}
+.search-box:focus-within {
+  border-color: var(--verde-oliva);
+  background: white;
+}
+.search-box input {
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--texto);
+  outline: none;
+  flex: 1;
+}
+.search-box input::placeholder { color: var(--texto-suave); }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--texto-med);
+  transition: all .15s;
+  position: relative;
+}
+.icon-btn:hover {
+  background: var(--fundo);
+  border-color: var(--borda-forte);
+}
+.icon-btn .dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  background: var(--terracota);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--verde-oliva);
+  color: white;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 8px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-primary:hover { background: var(--oliva-claro); }
+.btn-primary svg { width: 14px; height: 14px; }
+
+/* =============================================
+   CONTENT AREA
+   ============================================= */
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* =============================================
+   KPI CARDS — topo do dashboard
+   ============================================= */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi-card.oliva::after  { background: var(--verde-oliva); }
+.kpi-card.dourado::after { background: var(--dourado); }
+.kpi-card.terra::after  { background: var(--terracota); }
+.kpi-card.choco::after  { background: var(--chocolate-med); }
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.kpi-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--texto);
+}
+.kpi-sub {
+  font-size: 12px;
+  color: var(--texto-suave);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-trend-up   { color: var(--verde-oliva); }
+.kpi-trend-down { color: var(--terracota); }
+
+/* =============================================
+   FILTROS DE PLANO
+   ============================================= */
+.filters-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filter-label { font-size: 13px; color: var(--texto-suave); margin-right: 4px; }
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--texto-med);
+}
+.filter-btn:hover { border-color: var(--borda-forte); }
+.filter-btn.active {
+  background: var(--texto);
+  color: white;
+  border-color: var(--texto);
+}
+.filter-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.filter-btn-sort {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--texto-med);
+}
+
+/* =============================================
+   GRID DE PACIENTES
+   ============================================= */
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.patient-card {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+  overflow: hidden;
+}
+.patient-card:hover {
+  border-color: var(--borda-forte);
+  box-shadow: var(--sombra-md);
+  transform: translateY(-1px);
+}
+.patient-card.selected {
+  border-color: var(--verde-oliva);
+  box-shadow: 0 0 0 3px var(--oliva-fundo), var(--sombra-md);
+}
+
+/* Faixa de plano no lado esquerdo */
+.plan-stripe {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.plan-stripe.caminho     { background: var(--dourado); }
+.plan-stripe.transformacao { background: var(--terracota); }
+.plan-stripe.jornada     { background: var(--verde-oliva); }
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.patient-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+}
+.avatar-status {
+  position: absolute;
+  bottom: 1px; right: 1px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+.avatar-status.ativa       { background: #4CAF50; }
+.avatar-status.pausada     { background: #FFC107; }
+.avatar-status.aguardando  { background: #9E9E9E; }
+.avatar-status.encerrada   { background: #E0E0E0; }
+
+.patient-info { flex: 1; min-width: 0; }
+.patient-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.patient-goal {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.plan-badge.caminho      { background: var(--dourado-fundo); color: var(--dourado); }
+.plan-badge.transformacao { background: var(--terra-fundo); color: var(--terracota); }
+.plan-badge.jornada      { background: var(--oliva-fundo); color: var(--verde-oliva); }
+
+.card-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.metric {
+  background: var(--fundo);
+  border-radius: var(--r-sm);
+  padding: 8px;
+  text-align: center;
+}
+.metric-val {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.metric-lbl {
+  font-size: 10px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+/* Barra de progresso do plano */
+.plan-progress {
+  margin-bottom: 12px;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.progress-label { font-size: 11px; color: var(--texto-suave); }
+.progress-days  {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--texto-med);
+}
+.progress-bar {
+  height: 4px;
+  background: var(--borda);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+.progress-fill.caminho      { background: var(--dourado); }
+.progress-fill.transformacao { background: var(--terracota); }
+.progress-fill.jornada      { background: var(--verde-oliva); }
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borda);
+}
+.last-msg {
+  flex: 1;
+  font-size: 11.5px;
+  color: var(--texto-suave);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.last-msg svg { flex-shrink: 0; }
+.unread-badge {
+  background: var(--terracota);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--verde-oliva);
+  background: var(--oliva-fundo);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.card-action-btn:hover { background: #dde3d4; }
+
+/* =============================================
+   DRAWER — Ficha da Paciente
+   ============================================= */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42,31,20,.35);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+.drawer-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 520px;
+  background: var(--superficie);
+  z-index: 201;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.drawer-close {
+  width: 32px; height: 32px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--texto-suave);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.drawer-close:hover { background: var(--fundo); }
+.drawer-patient-info { flex: 1; }
+.drawer-patient-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.drawer-patient-sub {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-top: 1px;
+}
+
+.drawer-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--borda);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.dtab {
+  flex: 1;
+  padding: 11px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--texto-suave);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.dtab:hover { color: var(--texto); background: var(--fundo); }
+.dtab.active {
+  color: var(--verde-oliva);
+  border-bottom-color: var(--verde-oliva);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Aba: Ficha */
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--texto);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.info-item {}
+.info-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin-bottom: 3px;
+}
+.info-value {
+  font-size: 14px;
+  color: var(--texto);
+  font-weight: 400;
+}
+.info-value.highlight {
+  font-weight: 600;
+  color: var(--verde-oliva);
+}
+
+.notes-box {
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--texto-med);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.notes-box textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--texto-med);
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  min-height: 80px;
+}
+
+/* Aba: Chat preview */
+.chat-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.chat-msg {
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+.chat-msg.from-patient {
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  align-self: flex-start;
+  border-radius: var(--r-md) var(--r-md) var(--r-md) 4px;
+}
+.chat-msg.from-nutri {
+  background: var(--verde-oliva);
+  color: white;
+  align-self: flex-end;
+  border-radius: var(--r-md) var(--r-md) 4px var(--r-md);
+}
+.chat-msg-time {
+  font-size: 10px;
+  opacity: .55;
+  margin-top: 3px;
+  display: block;
+}
+.chat-msg-photo {
+  width: 100%;
+  max-width: 200px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px;
+  font-size: 24px;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--borda);
+}
+.chat-input {
+  flex: 1;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  min-height: 40px;
+  max-height: 100px;
+  transition: border-color .15s;
+}
+.chat-input:focus { border-color: var(--verde-oliva); }
+.chat-send-btn {
+  width: 38px; height: 38px;
+  border-radius: var(--r-sm);
+  background: var(--verde-oliva);
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.chat-send-btn:hover { background: var(--oliva-claro); }
+
+/* Aba: Cardápio preview */
+.meal-plan-card {
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.meal-plan-header {
+  background: var(--fundo);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--borda);
+}
+.meal-plan-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texto);
+}
+.meal-plan-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.meal-plan-status.ativo   { background: var(--oliva-fundo); color: var(--verde-oliva); }
+.meal-plan-status.rascunho { background: var(--dourado-fundo); color: var(--dourado); }
+
+.meal-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.meal-item:last-child { border-bottom: none; }
+.meal-time {
+  font-size: 10.5px;
+  color: var(--texto-suave);
+  min-width: 48px;
+  padding-top: 1px;
+}
+.meal-desc {
+  flex: 1;
+}
+.meal-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texto);
+  margin-bottom: 1px;
+}
+.meal-foods {
+  font-size: 12px;
+  color: var(--texto-suave);
+  line-height: 1.5;
+}
+.meal-kcal {
+  font-size: 11px;
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   EMPTY STATE
+   ============================================= */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--texto-suave);
+}
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: .4;
+}
+.empty-state-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--texto-med);
+  margin-bottom: 6px;
+}
+.empty-state-desc { font-size: 13px; }
+
+/* =============================================
+   MODAL — Cadastrar Paciente
+   ============================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42,31,20,.45);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: var(--superficie);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  width: 440px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(.95) translateY(8px);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.modal-subtitle {
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin-bottom: 22px;
+}
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin-bottom: 5px;
+}
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--texto);
+  background: var(--superficie);
+  outline: none;
+  transition: border-color .15s;
+}
+.form-input:focus { border-color: var(--verde-oliva); }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.plan-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.plan-option {
+  border: 2px solid var(--borda);
+  border-radius: var(--r-md);
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.plan-option:hover { border-color: var(--borda-forte); }
+.plan-option.selected-caminho {
+  border-color: var(--dourado);
+  background: var(--dourado-fundo);
+}
+.plan-option.selected-transformacao {
+  border-color: var(--terracota);
+  background: var(--terra-fundo);
+}
+.plan-option.selected-jornada {
+  border-color: var(--verde-oliva);
+  background: var(--oliva-fundo);
+}
+.plan-opt-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.plan-opt-price { font-size: 11px; color: var(--texto-suave); }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+.btn-secondary {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-sm);
+  background: var(--superficie);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--texto-med);
+  transition: background .15s;
+}
+.btn-secondary:hover { background: var(--fundo); }
+.btn-modal-primary {
+  flex: 2;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  background: var(--verde-oliva);
+  color: white;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-modal-primary:hover { background: var(--oliva-claro); }
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--chocolate);
+  color: var(--creme);
+  padding: 12px 18px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  box-shadow: var(--sombra-lg);
+  z-index: 400;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all .3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+<!-- ==========================================
+     SIDEBAR
+     ========================================== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">
+      
+      <span class="logo-text">MADU</span>
+    </div>
+    <div class="logo-sub">Método MEB — Nutricionista</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+
+    <div class="nav-item active" onclick="setPage('pacientes', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Pacientes
+      <span class="nav-badge" id="badge-ativas">8</span>
+    </div>
+
+    <div class="nav-item" onclick="setPage('chat', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Mensagens
+      <span class="nav-badge" id="badge-msgs">3</span>
+    </div>
+
+    <div class="nav-item" onclick="setPage('cardapios', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Cardápios
+    </div>
+
+    <div class="nav-section-label" style="margin-top:8px">Conteúdo</div>
+
+    <div class="nav-item" onclick="setPage('biblioteca', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Biblioteca MEB
+    </div>
+
+    <div class="nav-item" onclick="setPage('comunidade', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Comunidade
+    </div>
+
+    <div class="nav-section-label" style="margin-top:8px">Gestão</div>
+
+    <div class="nav-item" onclick="setPage('relatorios', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </div>
+
+    <div class="nav-item" onclick="setPage('config', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Configurações
+    </div>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar">M</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name">Maria Eduarda</div>
+      <div class="sidebar-user-role">CRN 10-8836</div>
+    </div>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,239,230,.35)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</aside>
+
+<!-- ==========================================
+     MAIN CONTENT
+     ========================================== -->
+<main class="main">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-title">
+      <div class="page-title" id="page-title">Pacientes</div>
+      <div class="page-date" id="page-date"></div>
+    </div>
+
+    <div class="search-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--texto-suave);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar paciente..." oninput="filterPatients(this.value)">
+    </div>
+
+    <div class="header-actions">
+      <div class="icon-btn" title="Notificações">
+        <div class="dot"></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <button class="btn-primary" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Paciente
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card oliva">
+        <div class="kpi-label">Pacientes ativas</div>
+        <div class="kpi-value" id="kpi-ativas">8</div>
+        <div class="kpi-sub">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <span class="kpi-trend-up">+2 este mês</span>
+        </div>
+      </div>
+      <div class="kpi-card dourado">
+        <div class="kpi-label">Plano Caminho</div>
+        <div class="kpi-value" id="kpi-caminho">3</div>
+        <div class="kpi-sub">R$697 · trimestral</div>
+      </div>
+      <div class="kpi-card terra">
+        <div class="kpi-label">Transformação Real</div>
+        <div class="kpi-value" id="kpi-transf">3</div>
+        <div class="kpi-sub">R$1.697 · semestral</div>
+      </div>
+      <div class="kpi-card choco">
+        <div class="kpi-label">Jornada Completa</div>
+        <div class="kpi-value" id="kpi-jornada">2</div>
+        <div class="kpi-sub">R$3.297 · anual</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-row">
+      <span class="filter-label">Filtrar:</span>
+      <button class="filter-btn active" onclick="setFilter('todas', this)">Todas</button>
+      <button class="filter-btn" onclick="setFilter('caminho', this)">
+        <span class="filter-dot" style="background:var(--dourado)"></span>Caminho
+      </button>
+      <button class="filter-btn" onclick="setFilter('transformacao', this)">
+        <span class="filter-dot" style="background:var(--terracota)"></span>Transformação
+      </button>
+      <button class="filter-btn" onclick="setFilter('jornada', this)">
+        <span class="filter-dot" style="background:var(--verde-oliva)"></span>Jornada
+      </button>
+      <button class="filter-btn" onclick="setFilter('aguardando', this)">
+        <span class="filter-dot" style="background:#9E9E9E"></span>Aguardando
+      </button>
+      <button class="filter-btn-sort">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Ordenar
+      </button>
+    </div>
+
+    <!-- Grid de pacientes -->
+    <div class="patients-grid" id="patients-grid"></div>
+  </div>
+</main>
+
+<!-- ==========================================
+     DRAWER — Ficha da Paciente
+     ========================================== -->
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <button class="drawer-close" onclick="closeDrawer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="patient-avatar" id="drawer-avatar" style="width:42px;height:42px;font-size:17px;background:var(--verde-oliva)">A</div>
+    <div class="drawer-patient-info">
+      <div class="drawer-patient-name" id="drawer-name">—</div>
+      <div class="drawer-patient-sub" id="drawer-sub">—</div>
+    </div>
+    <span class="plan-badge" id="drawer-plan-badge">—</span>
+  </div>
+
+  <div class="drawer-tabs">
+    <div class="dtab active" onclick="setDrawerTab('ficha', this)">Ficha</div>
+    <div class="dtab" onclick="setDrawerTab('chat', this)">Chat</div>
+    <div class="dtab" onclick="setDrawerTab('cardapio', this)">Cardápio</div>
+    <div class="dtab" onclick="setDrawerTab('evolucao', this)">Evolução</div>
+  </div>
+
+  <div class="drawer-body" id="drawer-body">
+    <!-- preenchido por JS -->
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL — Nova Paciente
+     ========================================== -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Cadastrar nova paciente</div>
+    <div class="modal-subtitle">O convite será enviado por e-mail assim que você salvar.</div>
+
+    <div class="form-group">
+      <label class="form-label">Nome completo</label>
+      <input type="text" class="form-input" id="new-name" placeholder="Nome da paciente">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" class="form-input" id="new-email" placeholder="email@exemplo.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">WhatsApp</label>
+        <input type="tel" class="form-input" id="new-phone" placeholder="+55 49 9 9999-9999">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Plano</label>
+      <div class="plan-selector" id="plan-selector">
+        <div class="plan-option" onclick="selectPlan('caminho')" id="opt-caminho">
+          <div class="plan-opt-name" style="color:var(--dourado)">Caminho</div>
+          <div class="plan-opt-price">R$697</div>
+          <div class="plan-opt-price">3 meses</div>
+        </div>
+        <div class="plan-option" onclick="selectPlan('transformacao')" id="opt-transformacao">
+          <div class="plan-opt-name" style="color:var(--terracota)">Transformação</div>
+          <div class="plan-opt-price">R$1.697</div>
+          <div class="plan-opt-price">6 meses</div>
+        </div>
+        <div class="plan-option" onclick="selectPlan('jornada')" id="opt-jornada">
+          <div class="plan-opt-name" style="color:var(--verde-oliva)">Jornada</div>
+          <div class="plan-opt-price">R$3.297</div>
+          <div class="plan-opt-price">12 meses</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Objetivo principal</label>
+      <input type="text" class="form-input" id="new-goal" placeholder="Ex: Emagrecimento, saúde hormonal…">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-modal-primary" onclick="savePatient()">Enviar convite →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Ação realizada com sucesso</span>
+</div>
+
+<!-- ==========================================
+     JAVASCRIPT
+     ========================================== -->
+<script>
+// ==========================================
+// DADOS SIMULADOS (em produção: Supabase)
+// ==========================================
+const PATIENTS_DATA = [
+  {
+    id: 'p1', name: 'Ana Paula Souza', initials: 'AS',
+    goal: 'Emagrecimento e reeducação alimentar',
+    plan: 'caminho', status: 'ativa',
+    age: 34, height: 162, currentWeight: 74.2, goalWeight: 65,
+    planStart: '2026-03-15', planEnd: '2026-06-15',
+    lastMessage: 'Mandei a foto do café da manhã 🥗', lastMsgTime: '14:32',
+    unread: 2, avatarColor: '#C4714A',
+    notes: 'Histórico de síndrome do ovário policístico. Prefere cardápios simples e práticos. Faz academia 3x por semana.',
+    messages: [
+      { from: 'patient', text: 'Bom dia Duda! Seguindo o cardápio novo 😊', time: '09:10' },
+      { from: 'nutri', text: 'Oi Ana Paula! Que ótimo, como se sentiu com o café da manhã diferente?', time: '09:45' },
+      { from: 'patient', text: 'Mandei a foto do café da manhã 🥗', time: '14:32', isPhoto: true },
+    ]
+  },
+  {
+    id: 'p2', name: 'Roberta Lima', initials: 'RL',
+    goal: 'Equilíbrio hormonal e energia',
+    plan: 'transformacao', status: 'ativa',
+    age: 41, height: 168, currentWeight: 68.5, goalWeight: 63,
+    planStart: '2026-01-10', planEnd: '2026-07-10',
+    lastMessage: 'Consegui dormir muito melhor essa semana!', lastMsgTime: 'ontem',
+    unread: 0, avatarColor: '#5C6B3A',
+    notes: 'Menopausa precoce. Foco em anti-inflamatório e sono. Participa ativamente da comunidade.',
+    messages: [
+      { from: 'nutri', text: 'Roberta, como foi o encontro em grupo de ontem?', time: '10:00' },
+      { from: 'patient', text: 'Incrível! Adorei conhecer as outras meninas', time: '10:18' },
+      { from: 'patient', text: 'Consegui dormir muito melhor essa semana!', time: 'ontem' },
+    ]
+  },
+  {
+    id: 'p3', name: 'Fernanda Costa', initials: 'FC',
+    goal: 'Relação saudável com a comida',
+    plan: 'jornada', status: 'ativa',
+    age: 28, height: 158, currentWeight: 61.0, goalWeight: 58,
+    planStart: '2026-02-01', planEnd: '2027-02-01',
+    lastMessage: 'Terminei o desafio de 30 dias! 🎉', lastMsgTime: '09:18',
+    unread: 1, avatarColor: '#B8922A',
+    notes: 'Histórico de compulsão alimentar. Evolução muito positiva. Completou trilha de hábitos mês passado.',
+    messages: [
+      { from: 'patient', text: 'Duda, fiz todos os hábitos da semana!', time: '08:55' },
+      { from: 'nutri', text: 'Fernanda, que orgulho!! Você é incrível 🌿', time: '09:10' },
+      { from: 'patient', text: 'Terminei o desafio de 30 dias! 🎉', time: '09:18' },
+    ]
+  },
+  {
+    id: 'p4', name: 'Carla Mendes', initials: 'CM',
+    goal: 'Perda de peso pós-gestação',
+    plan: 'caminho', status: 'ativa',
+    age: 32, height: 164, currentWeight: 79.0, goalWeight: 68,
+    planStart: '2026-05-01', planEnd: '2026-08-01',
+    lastMessage: 'Obrigada pelo cardápio novo!', lastMsgTime: '2d atrás',
+    unread: 0, avatarColor: '#7A8C52',
+    notes: 'Pós-parto 8 meses. Amamentando. Necessidade calórica aumentada. Prefere refeições rápidas.',
+    messages: [
+      { from: 'patient', text: 'Chegou o cardápio novo! Amei as opções de lanche', time: 'ontem' },
+      { from: 'nutri', text: 'Que bom! Priorizei receitas rápidas pra você 💚', time: 'ontem' },
+      { from: 'patient', text: 'Obrigada pelo cardápio novo!', time: '2d atrás' },
+    ]
+  },
+  {
+    id: 'p5', name: 'Patricia Oliveira', initials: 'PO',
+    goal: 'Controle glicêmico e disposição',
+    plan: 'transformacao', status: 'ativa',
+    age: 47, height: 166, currentWeight: 72.3, goalWeight: 67,
+    planStart: '2026-03-20', planEnd: '2026-09-20',
+    lastMessage: 'Glicemia estável essa semana!', lastMsgTime: '3d atrás',
+    unread: 0, avatarColor: '#3D2314',
+    notes: 'Pré-diabetes. Responde muito bem às orientações. Faz caminhada diária. Muito disciplinada.',
+    messages: [
+      { from: 'patient', text: 'Meus exames melhoraram muito!', time: '3d atrás' },
+      { from: 'nutri', text: 'Patricia, que notícia maravilhosa! Continue assim 🌱', time: '3d atrás' },
+      { from: 'patient', text: 'Glicemia estável essa semana!', time: '3d atrás' },
+    ]
+  },
+  {
+    id: 'p6', name: 'Juliana Santos', initials: 'JS',
+    goal: 'Ganho de massa muscular e performance',
+    plan: 'jornada', status: 'ativa',
+    age: 26, height: 170, currentWeight: 58.0, goalWeight: 62,
+    planStart: '2026-01-05', planEnd: '2027-01-05',
+    lastMessage: 'Bati o PR no treino hoje 💪', lastMsgTime: 'hoje',
+    unread: 0, avatarColor: '#5C6B3A',
+    notes: 'Atleta de crossfit. Foco em periodização nutricional. Usa proteína whey diariamente.',
+    messages: [
+      { from: 'patient', text: 'Bati o PR no treino hoje 💪', time: 'hoje' },
+    ]
+  },
+  {
+    id: 'p7', name: 'Mariana Rodrigues', initials: 'MR',
+    goal: 'Emagrecimento sustentável',
+    plan: 'caminho', status: 'aguardando',
+    age: 29, height: 160, currentWeight: 82.0, goalWeight: 70,
+    planStart: '2026-06-10', planEnd: '2026-09-10',
+    lastMessage: 'Convite enviado', lastMsgTime: 'hoje',
+    unread: 0, avatarColor: '#9E9E9E',
+    notes: 'Convite enviado hoje. Ainda não fez o primeiro acesso.',
+    messages: []
+  },
+  {
+    id: 'p8', name: 'Beatriz Almeida', initials: 'BA',
+    goal: 'Saúde intestinal e bem-estar',
+    plan: 'transformacao', status: 'pausada',
+    age: 38, height: 162, currentWeight: 65.0, goalWeight: 60,
+    planStart: '2026-02-15', planEnd: '2026-08-15',
+    lastMessage: 'Viagem marcada para Julho', lastMsgTime: '1 semana',
+    unread: 0, avatarColor: '#B8922A',
+    notes: 'Plano pausado por viagem. Retorno previsto em Agosto.',
+    messages: [
+      { from: 'patient', text: 'Oi Duda, vou viajar em Julho, preciso pausar', time: '1 semana' },
+      { from: 'nutri', text: 'Sem problema Bea! Vou deixar tudo anotado pra retomar 🌿', time: '1 semana' },
+    ]
+  }
+];
+
+// ==========================================
+// STATE
+// ==========================================
+let activeFilter = 'todas';
+let searchQuery = '';
+let selectedPlan = 'caminho';
+let currentPatient = null;
+let currentDrawerTab = 'ficha';
+
+// ==========================================
+// INIT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  updateDate();
+  renderPatients();
+  updateKPIs();
+  selectPlan('caminho');
+});
+
+function updateDate() {
+  const now = new Date();
+  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('page-date').textContent =
+    now.toLocaleDateString('pt-BR', opts);
+}
+
+// ==========================================
+// RENDER PATIENTS
+// ==========================================
+function renderPatients() {
+  const grid = document.getElementById('patients-grid');
+  let list = PATIENTS_DATA.filter(p => {
+    const matchFilter = activeFilter === 'todas' || p.plan === activeFilter || p.status === activeFilter;
+    const matchSearch = !searchQuery ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.goal.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-icon">🌿</div>
+        <div class="empty-state-title">Nenhuma paciente encontrada</div>
+        <div class="empty-state-desc">Tente outro filtro ou adicione uma nova paciente.</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => buildPatientCard(p)).join('');
+}
+
+function buildPatientCard(p) {
+  const planNames = { caminho: 'Caminho', transformacao: 'Transformação', jornada: 'Jornada Completa' };
+  const statusDot = p.status;
+
+  const start = new Date(p.planStart);
+  const end   = new Date(p.planEnd);
+  const now   = new Date();
+  const total = (end - start) / 86400000;
+  const elapsed = (now - start) / 86400000;
+  const pct   = Math.min(100, Math.max(0, (elapsed / total) * 100)).toFixed(0);
+  const remaining = Math.max(0, Math.ceil((end - now) / 86400000));
+
+  const lostKg = p.currentWeight && p.goalWeight ? (p.currentWeight - p.goalWeight).toFixed(1) : '—';
+  const progress = p.currentWeight && p.goalWeight
+    ? Math.min(100, Math.max(0, ((p.currentWeight - p.goalWeight) > 0
+        ? ((p.currentWeight - (p.currentWeight)) / (p.currentWeight - p.goalWeight)) * 100
+        : 100))).toFixed(0)
+    : 0;
+
+  return `
+    <div class="patient-card" id="card-${p.id}" onclick="openDrawer('${p.id}')">
+      <div class="plan-stripe ${p.plan}"></div>
+      <div class="card-header">
+        <div class="patient-avatar" style="background:${p.avatarColor}">
+          ${p.initials}
+          <div class="avatar-status ${p.status}"></div>
+        </div>
+        <div class="patient-info">
+          <div class="patient-name">${p.name}</div>
+          <div class="patient-goal">${p.goal}</div>
+        </div>
+        <span class="plan-badge ${p.plan}">${planNames[p.plan]}</span>
+      </div>
+
+      <div class="card-metrics">
+        <div class="metric">
+          <div class="metric-val">${p.currentWeight ? p.currentWeight + ' kg' : '—'}</div>
+          <div class="metric-lbl">Peso atual</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">${p.goalWeight ? p.goalWeight + ' kg' : '—'}</div>
+          <div class="metric-lbl">Meta</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">${p.age ? p.age + ' anos' : '—'}</div>
+          <div class="metric-lbl">Idade</div>
+        </div>
+      </div>
+
+      <div class="plan-progress">
+        <div class="progress-header">
+          <span class="progress-label">Progresso do plano</span>
+          <span class="progress-days">${p.status === 'aguardando' ? 'Aguardando acesso' : p.status === 'pausada' ? 'Pausado' : remaining + ' dias restantes'}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill ${p.plan}" style="width:${pct}%"></div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="last-msg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          ${p.lastMessage} · ${p.lastMsgTime}
+        </div>
+        ${p.unread > 0 ? `<span class="unread-badge">${p.unread}</span>` : ''}
+        <button class="card-action-btn" onclick="event.stopPropagation(); openDrawer('${p.id}', 'chat')">
+          Abrir
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ==========================================
+// FILTER & SEARCH
+// ==========================================
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPatients();
+}
+
+function filterPatients(q) {
+  searchQuery = q;
+  renderPatients();
+}
+
+// ==========================================
+// KPIs
+// ==========================================
+function updateKPIs() {
+  const ativas = PATIENTS_DATA.filter(p => p.status === 'ativa').length;
+  const caminho = PATIENTS_DATA.filter(p => p.plan === 'caminho').length;
+  const transf  = PATIENTS_DATA.filter(p => p.plan === 'transformacao').length;
+  const jornada = PATIENTS_DATA.filter(p => p.plan === 'jornada').length;
+  document.getElementById('kpi-ativas').textContent  = ativas;
+  document.getElementById('kpi-caminho').textContent = caminho;
+  document.getElementById('kpi-transf').textContent  = transf;
+  document.getElementById('kpi-jornada').textContent = jornada;
+  document.getElementById('badge-ativas').textContent = ativas;
+}
+
+// ==========================================
+// DRAWER
+// ==========================================
+function openDrawer(patientId, tab = 'ficha') {
+  currentPatient = PATIENTS_DATA.find(p => p.id === patientId);
+  if (!currentPatient) return;
+
+  // Header
+  document.getElementById('drawer-avatar').textContent = currentPatient.initials;
+  document.getElementById('drawer-avatar').style.background = currentPatient.avatarColor;
+  document.getElementById('drawer-name').textContent = currentPatient.name;
+  document.getElementById('drawer-sub').textContent =
+    `${currentPatient.goal} · ${currentPatient.age || '—'} anos`;
+
+  const planNames = { caminho: 'Caminho', transformacao: 'Transformação', jornada: 'Jornada Completa' };
+  const badge = document.getElementById('drawer-plan-badge');
+  badge.textContent = planNames[currentPatient.plan];
+  badge.className = `plan-badge ${currentPatient.plan}`;
+
+  // Highlight selected card
+  document.querySelectorAll('.patient-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById(`card-${patientId}`);
+  if (card) card.classList.add('selected');
+
+  setDrawerTab(tab, document.querySelectorAll('.dtab')[
+    ['ficha','chat','cardapio','evolucao'].indexOf(tab)
+  ]);
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  document.querySelectorAll('.patient-card').forEach(c => c.classList.remove('selected'));
+  currentPatient = null;
+}
+
+function setDrawerTab(tab, btn) {
+  currentDrawerTab = tab;
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDrawerTab(tab);
+}
+
+function renderDrawerTab(tab) {
+  const body = document.getElementById('drawer-body');
+  if (!currentPatient) return;
+  const p = currentPatient;
+
+  if (tab === 'ficha') {
+    body.innerHTML = `
+      <div class="section-title">Dados clínicos</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Peso atual</div>
+          <div class="info-value highlight">${p.currentWeight ? p.currentWeight + ' kg' : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Meta de peso</div>
+          <div class="info-value">${p.goalWeight ? p.goalWeight + ' kg' : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Altura</div>
+          <div class="info-value">${p.height ? p.height + ' cm' : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">IMC estimado</div>
+          <div class="info-value">${p.currentWeight && p.height ? (p.currentWeight / Math.pow(p.height/100, 2)).toFixed(1) : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Plano</div>
+          <div class="info-value">${['caminho','transformacao','jornada'].includes(p.plan) ? {caminho:'Caminho · R$697',transformacao:'Transformação · R$1.697',jornada:'Jornada · R$3.297'}[p.plan] : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Status</div>
+          <div class="info-value">${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Início do plano</div>
+          <div class="info-value">${p.planStart ? new Date(p.planStart).toLocaleDateString('pt-BR') : '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Vencimento</div>
+          <div class="info-value">${p.planEnd ? new Date(p.planEnd).toLocaleDateString('pt-BR') : '—'}</div>
+        </div>
+      </div>
+
+      <div class="section-title">Objetivo e observações</div>
+      <div style="margin-bottom:12px">
+        <div class="info-label" style="margin-bottom:5px">Objetivo principal</div>
+        <div class="info-value">${p.goal}</div>
+      </div>
+      <div class="notes-box">
+        <div class="info-label" style="margin-bottom:6px">Notas clínicas internas</div>
+        <textarea rows="4" placeholder="Anotações internas (visível só para você)…">${p.notes || ''}</textarea>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" style="flex:1" onclick="showToast('Ficha salva com sucesso')">Salvar alterações</button>
+        <button class="btn-secondary" style="flex:1" onclick="setDrawerTab('chat', document.querySelectorAll(\'.dtab\')[1])">Abrir chat →</button>
+      </div>`;
+  }
+
+  else if (tab === 'chat') {
+    const msgs = p.messages || [];
+    const msgsHtml = msgs.map(m => {
+      if (m.isPhoto) {
+        return `
+          <div class="chat-msg from-patient">
+            <div class="chat-msg-photo">📷</div>
+            <span class="chat-msg-time">${m.time}</span>
+          </div>`;
+      }
+      return `
+        <div class="chat-msg from-${m.from}">
+          ${m.text}
+          <span class="chat-msg-time">${m.time}</span>
+        </div>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="section-title">Conversa com ${p.name.split(' ')[0]}</div>
+      <div class="chat-preview" id="chat-msgs">
+        ${msgsHtml || '<div style="text-align:center;color:var(--texto-suave);padding:20px;font-size:13px">Nenhuma mensagem ainda.</div>'}
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input-field" placeholder="Escreva uma mensagem…" rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button class="chat-send-btn" onclick="sendMsg()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>`;
+  }
+
+  else if (tab === 'cardapio') {
+    body.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="section-title" style="margin-bottom:0">Cardápios</div>
+        <button class="btn-primary" style="font-size:12px;padding:6px 12px" onclick="showToast('Criar novo cardápio em breve!')">
+          + Novo cardápio
+        </button>
+      </div>
+
+      <div class="meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="meal-plan-title">Plano Junho 2026 — Fase Redução</div>
+          <span class="meal-plan-status ativo">Ativo</span>
+        </div>
+        <div class="meal-item">
+          <div class="meal-time">07:30</div>
+          <div class="meal-desc">
+            <div class="meal-name">☀️ Café da manhã</div>
+            <div class="meal-foods">2 ovos mexidos + 1 fatia de pão integral + 1 fruta + café sem açúcar</div>
+          </div>
+          <div class="meal-kcal">~320 kcal</div>
+        </div>
+        <div class="meal-item">
+          <div class="meal-time">10:00</div>
+          <div class="meal-desc">
+            <div class="meal-name">🍎 Lanche da manhã</div>
+            <div class="meal-foods">1 fruta + 1 punhado de castanhas</div>
+          </div>
+          <div class="meal-kcal">~180 kcal</div>
+        </div>
+        <div class="meal-item">
+          <div class="meal-time">12:30</div>
+          <div class="meal-desc">
+            <div class="meal-name">🥗 Almoço</div>
+            <div class="meal-foods">Arroz integral + feijão + frango grelhado + salada à vontade + azeite</div>
+          </div>
+          <div class="meal-kcal">~520 kcal</div>
+        </div>
+        <div class="meal-item">
+          <div class="meal-time">15:30</div>
+          <div class="meal-desc">
+            <div class="meal-name">🍵 Lanche da tarde</div>
+            <div class="meal-foods">Iogurte grego natural + granola sem açúcar + frutas vermelhas</div>
+          </div>
+          <div class="meal-kcal">~210 kcal</div>
+        </div>
+        <div class="meal-item">
+          <div class="meal-time">19:30</div>
+          <div class="meal-desc">
+            <div class="meal-name">🌙 Jantar</div>
+            <div class="meal-foods">Sopa de legumes com frango desfiado + 1 fatia de pão integral</div>
+          </div>
+          <div class="meal-kcal">~350 kcal</div>
+        </div>
+      </div>
+
+      <div class="meal-plan-card" style="opacity:.6">
+        <div class="meal-plan-header">
+          <div class="meal-plan-title">Plano Maio 2026 — Introdução</div>
+          <span class="meal-plan-status rascunho">Arquivado</span>
+        </div>
+      </div>`;
+  }
+
+  else if (tab === 'evolucao') {
+    const progress = p.currentWeight && p.goalWeight
+      ? ((p.currentWeight - p.goalWeight) > 0
+          ? 0
+          : 100).toFixed(0)
+      : 0;
+
+    body.innerHTML = `
+      <div class="section-title">Evolução de peso</div>
+      <div class="info-grid" style="margin-bottom:20px">
+        <div class="metric" style="background:var(--fundo)">
+          <div class="metric-val">${p.currentWeight || '—'} kg</div>
+          <div class="metric-lbl">Peso atual</div>
+        </div>
+        <div class="metric" style="background:var(--fundo)">
+          <div class="metric-val">${p.goalWeight || '—'} kg</div>
+          <div class="metric-lbl">Meta</div>
+        </div>
+        <div class="metric" style="background:var(--fundo)">
+          <div class="metric-val">${p.currentWeight && p.goalWeight ? (p.currentWeight - p.goalWeight).toFixed(1) + ' kg' : '—'}</div>
+          <div class="metric-lbl">Diferença</div>
+        </div>
+        <div class="metric" style="background:var(--fundo)">
+          <div class="metric-val">${p.currentWeight && p.height ? (p.currentWeight / Math.pow(p.height/100, 2)).toFixed(1) : '—'}</div>
+          <div class="metric-lbl">IMC</div>
+        </div>
+      </div>
+
+      <div class="section-title">Registrar novo peso</div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <input type="number" class="form-input" placeholder="Ex: 73.5" style="flex:1">
+        <button class="btn-primary" onclick="showToast('Peso registrado com sucesso!')">Registrar</button>
+      </div>
+
+      <div class="section-title">Histórico</div>
+      <div style="color:var(--texto-suave);font-size:13px;text-align:center;padding:20px">
+        Conecte ao Supabase para ver o histórico completo de peso.
+      </div>`;
+  }
+}
+
+// ==========================================
+// CHAT: enviar mensagem
+// ==========================================
+function sendMsg() {
+  const input = document.getElementById('chat-input-field');
+  const text = input?.value?.trim();
+  if (!text || !currentPatient) return;
+
+  // Adiciona ao array local
+  currentPatient.messages.push({ from: 'nutri', text, time: 'agora' });
+  currentPatient.lastMessage = text;
+  currentPatient.lastMsgTime = 'agora';
+  input.value = '';
+
+  // Re-renderiza chat e cards
+  renderDrawerTab('chat');
+  renderPatients();
+
+  // Scroll to bottom
+  const msgs = document.getElementById('chat-msgs');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ==========================================
+// MODAL — Nova paciente
+// ==========================================
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  ['caminho','transformacao','jornada'].forEach(p => {
+    const el = document.getElementById(`opt-${p}`);
+    if (el) el.className = `plan-option${plan === p ? ` selected-${p}` : ''}`;
+  });
+}
+
+function savePatient() {
+  const name  = document.getElementById('new-name')?.value?.trim();
+  const email = document.getElementById('new-email')?.value?.trim();
+  const phone = document.getElementById('new-phone')?.value?.trim();
+  const goal  = document.getElementById('new-goal')?.value?.trim();
+
+  if (!name || !email) {
+    showToast('Preencha nome e e-mail');
+    return;
+  }
+
+  const initials = name.split(' ').slice(0,2).map(w => w[0].toUpperCase()).join('');
+  const colors = ['#C4714A','#5C6B3A','#B8922A','#3D2314','#7A8C52'];
+  const color = colors[PATIENTS_DATA.length % colors.length];
+
+  const now = new Date();
+  const months = { caminho: 3, transformacao: 6, jornada: 12 }[selectedPlan];
+  const end = new Date(now);
+  end.setMonth(end.getMonth() + months);
+
+  PATIENTS_DATA.unshift({
+    id: `p${Date.now()}`, name, initials,
+    goal: goal || 'Acompanhamento nutricional',
+    plan: selectedPlan, status: 'aguardando',
+    avatarColor: color,
+    planStart: now.toISOString().split('T')[0],
+    planEnd: end.toISOString().split('T')[0],
+    lastMessage: 'Convite enviado', lastMsgTime: 'agora',
+    unread: 0, messages: [],
+    notes: ''
+  });
+
+  closeModal();
+  renderPatients();
+  updateKPIs();
+  showToast(`Convite enviado para ${name.split(' ')[0]}! 🌿`);
+
+  // Limpa form
+  ['new-name','new-email','new-phone','new-goal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  selectPlan('caminho');
+}
+
+// ==========================================
+// SIDEBAR NAVIGATION
+// ==========================================
+function setPage(page, btn) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  btn.classList.add('active');
+  const titles = {
+    pacientes: 'Pacientes', chat: 'Mensagens', cardapios: 'Cardápios',
+    biblioteca: 'Biblioteca MEB', comunidade: 'Comunidade Método MEB',
+    relatorios: 'Relatórios', config: 'Configurações'
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+
+  if (page !== 'pacientes') {
+    const content = document.querySelector('.content');
+    content.innerHTML = `
+      <div class="empty-state" style="padding:80px 0">
+        <div class="empty-state-icon">🌿</div>
+        <div class="empty-state-title">${titles[page]}</div>
+        <div class="empty-state-desc">Este módulo será construído em seguida.</div>
+      </div>`;
+  } else {
+    location.reload();
+  }
+}
+
+// ==========================================
+// TOAST
+// ==========================================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>

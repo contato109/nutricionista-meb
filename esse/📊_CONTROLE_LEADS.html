@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MÉTODO MEB — Controle de Leads</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+.leaf{width:18px;height:18px;background:var(--oliva);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.hdr-title{font-size:12px;color:rgba(245,239,230,.5);flex:1}
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:var(--oliva);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s}
+.hdr-btn:hover{background:var(--oliva-lt)}
+
+.page{padding:16px;max-width:1200px;margin:0 auto;overflow-y:auto;min-height:calc(100vh - 56px)}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--oliva) 0%,#6a7a4a 100%);border-radius:var(--r);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero-content{position:relative;z-index:1}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:4px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:14px}
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;text-align:center}
+.kpi-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;display:block}
+.kpi-label{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;text-transform:uppercase}
+
+/* Controls */
+.controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-bar{display:flex;gap:8px;background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:8px;flex:1;min-width:200px}
+.search-bar input{border:none;background:transparent;flex:1;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.search-bar input::placeholder{color:var(--txt-soft)}
+.btn{padding:10px 16px;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-pri{background:var(--oliva);color:#fff}.btn-pri:hover{background:var(--oliva-lt)}
+.btn-sec{background:transparent;border:1px solid var(--borda);color:var(--txt)}.btn-sec:hover{background:var(--fundo)}
+
+/* Filters */
+.filters{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.filter-btn{padding:6px 12px;border:1px solid var(--borda);background:var(--surf);border-radius:16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--txt-soft);transition:all .15s;white-space:nowrap;flex-shrink:0}
+.filter-btn:hover,.filter-btn.active{background:var(--oliva);border-color:var(--oliva);color:#fff}
+
+/* Table */
+.table-container{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);overflow-x:auto}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{background:var(--fundo);padding:12px;text-align:left;font-weight:600;border-bottom:2px solid var(--borda);position:sticky;top:0}
+.table td{padding:12px;border-bottom:1px solid var(--borda)}
+.table tbody tr:hover{background:rgba(92,107,58,.02)}
+.status-badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;text-align:center;min-width:80px}
+.status-nao{background:#FFE5E5;color:#C0392B}
+.status-pensando{background:#FFF4E5;color:#E67E22}
+.status-negociacao{background:#E5F4FF;color:#3498DB}
+.status-followup{background:#F0F8E5;color:#27AE60}
+.status-perda{background:#F0F0F0;color:#7F8C8D}
+.status-venda{background:#E5F5E5;color:#27AE60}
+.status-upsell{background:#F4E5FF;color:#9B59B6}
+
+.action-btn{background:none;border:none;cursor:pointer;color:var(--oliva);font-size:16px;padding:4px 8px;transition:all .15s}
+.action-btn:hover{color:var(--oliva-lt);transform:scale(1.1)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:var(--r);width:90%;max-width:600px;max-height:90vh;overflow-y:auto;padding:0;display:flex;flex-direction:column}
+.modal-hd{padding:16px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surf)}
+.modal-title{font-size:16px;font-weight:500}
+.modal-close{width:32px;height:32px;border:none;background:transparent;cursor:pointer;font-size:18px;color:var(--txt);transition:all .15s}
+.modal-close:hover{background:var(--fundo)}
+.modal-body{padding:16px;flex:1;overflow-y:auto}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;color:var(--txt-soft);text-transform:uppercase;font-weight:600;margin-bottom:6px;letter-spacing:.04em}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;border:1px solid var(--borda);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--oliva);background:#fff}
+.form-group textarea{min-height:80px;resize:vertical}
+
+.modal-btns{padding:16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end}
+
+/* Empty */
+.empty{text-align:center;padding:48px 20px;color:var(--txt-soft)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--choco);color:var(--creme);padding:11px 16px;border-radius:var(--r);font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 8px;background:var(--oliva-bg);color:var(--oliva);border-radius:4px;font-size:11px;margin-right:4px}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-title">📊 Funil de Vendas</div>
+      <div class="hero-sub">Acompanhe cada lead na jornada até virar paciente</div>
+      <div class="hero-kpis">
+        <div class="kpi">
+          <span class="kpi-num" id="kpi-total">0</span>
+          <span class="kpi-label">Total</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-num" id="kpi-negociacao">0</span>
+          <span class="kpi-label">Em Negociação</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-num" id="kpi-vendas">0</span>
+          <span class="kpi-label">Vendas</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-num" id="kpi-taxa">0%</span>
+          <span class="kpi-label">Taxa Conv.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" placeholder="Buscar por nome ou e-mail..." oninput="filterLeads(this.value)">
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setStatusFilter('all')">Todos</button>
+    <button class="filter-btn" onclick="setStatusFilter('nao_abordado')">❌ Não Abordado</button>
+    <button class="filter-btn" onclick="setStatusFilter('pensando')">🤔 Pensando</button>
+    <button class="filter-btn" onclick="setStatusFilter('negociacao')">💬 Em Negociação</button>
+    <button class="filter-btn" onclick="setStatusFilter('venda')">✅ Venda</button>
+    <button class="filter-btn" onclick="setStatusFilter('perda')">😢 Perda</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Criado em</th>
+          <th>Nome</th>
+          <th>Whatsapp</th>
+          <th>Objetivo</th>
+          <th>Meio</th>
+          <th>Status</th>
+          <th>Plano</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="leads-tbody">
+        <!-- Carregado via JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty -->
+  <div id="empty-state" class="empty" style="display:none">
+    <div class="empty-icon">📭</div>
+    <div style="font-size:13px;font-weight:500">Nenhum lead encontrado</div>
+  </div>
+</div>
+
+<!-- Modal: Novo Lead -->
+<div class="modal-overlay" id="new-lead-modal" onclick="closeNewLeadModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title">Novo Lead</div>
+      <button class="modal-close" onclick="closeNewLeadModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Nome (obrigatório) -->
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="lead-name" placeholder="Digite o nome completo">
+      </div>
+
+      <!-- Data de nascimento (opcional) -->
+      <div class="form-group">
+        <label>Data de Nascimento</label>
+        <input type="date" id="lead-birth">
+      </div>
+
+      <!-- Whatsapp (opcional) -->
+      <div class="form-group">
+        <label>Whatsapp (com DDD)</label>
+        <input type="tel" id="lead-whatsapp" placeholder="(85) 99999-9999">
+      </div>
+
+      <!-- Instagram (opcional) -->
+      <div class="form-group">
+        <label>Instagram</label>
+        <input type="text" id="lead-instagram" placeholder="@usuario">
+      </div>
+
+      <!-- Objetivo (obrigatório) -->
+      <div class="form-group">
+        <label>Objetivo *</label>
+        <select id="lead-objetivo">
+          <option value="">Selecione um objetivo...</option>
+          <option value="emagrecer">Emagrecer</option>
+          <option value="energia">Ganhar energia</option>
+          <option value="saude">Melhorar saúde</option>
+          <option value="habitos">Criar hábitos</option>
+        </select>
+      </div>
+
+      <!-- Dificuldades (obrigatório) -->
+      <div class="form-group">
+        <label>Dificuldades *</label>
+        <textarea id="lead-dificuldades" placeholder="Quais são os principais desafios?"></textarea>
+      </div>
+
+      <!-- Meio (obrigatório) -->
+      <div class="form-group">
+        <label>Como chegou? (Meio) *</label>
+        <select id="lead-meio">
+          <option value="">Selecione...</option>
+          <option value="instagram">Instagram</option>
+          <option value="google">Google</option>
+          <option value="indicacao">Indicação</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="facebook">Facebook</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+
+      <!-- Conta mais (obrigatório) -->
+      <div class="form-group">
+        <label>Conte mais sobre você *</label>
+        <textarea id="lead-conta-mais" placeholder="Histórico de dietas, o que você já tentou..."></textarea>
+      </div>
+
+      <!-- E-mail (opcional) -->
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="lead-email" placeholder="seu@email.com">
+      </div>
+
+      <!-- Status (obrigatório) -->
+      <div class="form-group">
+        <label>Status Inicial *</label>
+        <select id="lead-status">
+          <option value="nao_abordado">❌ Não abordado</option>
+          <option value="pensando">🤔 Pensando</option>
+          <option value="negociacao">💬 Em negociação</option>
+          <option value="venda">✅ Venda</option>
+          <option value="perda">😢 Perda</option>
+        </select>
+      </div>
+
+      <!-- Plano (opcional) -->
+      <div class="form-group">
+        <label>Plano Interessado</label>
+        <select id="lead-plano">
+          <option value="">Não especificado</option>
+          <option value="caminho">Caminho Inicial</option>
+          <option value="transformacao">Transformação Real</option>
+          <option value="jornada">Jornada Completa</option>
+        </select>
+      </div>
+
+      <!-- Pendência (opcional) -->
+      <div class="form-group">
+        <label>Pendência</label>
+        <input type="text" id="lead-pendencia" placeholder="Ex: Esperar orçamento, agendar call...">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-sec" onclick="closeNewLeadModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="saveLead()">Criar Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar Lead -->
+<div class="modal-overlay" id="edit-lead-modal" onclick="closeEditLeadModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title">Editar Lead</div>
+      <button class="modal-close" onclick="closeEditLeadModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-lead-id">
+      <!-- Mesmo formulário, apenas com valores pré-preenchidos -->
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="edit-lead-name">
+      </div>
+      <div class="form-group">
+        <label>Status *</label>
+        <select id="edit-lead-status">
+          <option value="nao_abordado">❌ Não abordado</option>
+          <option value="pensando">🤔 Pensando</option>
+          <option value="negociacao">💬 Em negociação</option>
+          <option value="followup_1d">⏰ Follow-up 1 dia</option>
+          <option value="followup_3d">⏰ Follow-up 3 dias</option>
+          <option value="followup_7d">⏰ Follow-up 7 dias</option>
+          <option value="followup_30d">⏰ Follow-up 30 dias</option>
+          <option value="venda">✅ Venda</option>
+          <option value="perda">😢 Perda</option>
+          <option value="upsell">⬆️ Upsell</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Whatsapp</label>
+        <input type="tel" id="edit-lead-whatsapp">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="edit-lead-email">
+      </div>
+      <div class="form-group">
+        <label>Plano</label>
+        <select id="edit-lead-plano">
+          <option value="">Não especificado</option>
+          <option value="caminho">Caminho Inicial</option>
+          <option value="transformacao">Transformação Real</option>
+          <option value="jornada">Jornada Completa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pendência</label>
+        <input type="text" id="edit-lead-pendencia">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-sec" onclick="closeEditLeadModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="updateLead()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ⚠️ COLOQUE SUAS CREDENCIAIS AQUI:
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let leads = [];
+let currentFilter = 'all';
+let currentSearch = '';
+
+const STATUS_LABELS = {
+  'nao_abordado': '❌ Não abordado',
+  'pensando': '🤔 Pensando',
+  'negociacao': '💬 Em negociação',
+  'followup_1d': '⏰ Follow-up 1d',
+  'followup_3d': '⏰ Follow-up 3d',
+  'followup_7d': '⏰ Follow-up 7d',
+  'followup_30d': '⏰ Follow-up 30d',
+  'perda': '😢 Perda',
+  'venda': '✅ Venda',
+  'upsell': '⬆️ Upsell'
+};
+
+const STATUS_CLASSES = {
+  'nao_abordado': 'status-nao',
+  'pensando': 'status-pensando',
+  'negociacao': 'status-negociacao',
+  'followup_1d': 'status-followup',
+  'followup_3d': 'status-followup',
+  'followup_7d': 'status-followup',
+  'followup_30d': 'status-followup',
+  'perda': 'status-perda',
+  'venda': 'status-venda',
+  'upsell': 'status-upsell'
+};
+
+// Load leads
+async function loadLeads() {
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    leads = data || [];
+    renderLeads();
+    updateKPIs();
+  } catch (err) {
+    console.error('Erro ao carregar leads:', err);
+    showToast('Erro ao carregar leads');
+  }
+}
+
+// Render leads table
+function renderLeads() {
+  let filtered = leads;
+  
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(l => l.status === currentFilter);
+  }
+  
+  if (currentSearch) {
+    const search = currentSearch.toLowerCase();
+    filtered = filtered.filter(l => 
+      l.full_name.toLowerCase().includes(search) ||
+      (l.email && l.email.toLowerCase().includes(search))
+    );
+  }
+
+  const tbody = document.getElementById('leads-tbody');
+  const emptyState = document.getElementById('empty-state');
+  
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  tbody.innerHTML = filtered.map(lead => `
+    <tr>
+      <td>${new Date(lead.created_at).toLocaleDateString('pt-BR')}</td>
+      <td><strong>${lead.full_name}</strong></td>
+      <td>${lead.whatsapp || '—'}</td>
+      <td>
+        <span class="tag">${lead.objective}</span>
+      </td>
+      <td>${lead.how_arrived}</td>
+      <td>
+        <span class="status-badge ${STATUS_CLASSES[lead.status] || 'status-nao'}">
+          ${STATUS_LABELS[lead.status] || lead.status}
+        </span>
+      </td>
+      <td>${lead.plan ? lead.plan : '—'}</td>
+      <td>
+        <button class="action-btn" onclick="editLead('${lead.id}')" title="Editar">✏️</button>
+        <button class="action-btn" onclick="deleteLead('${lead.id}')" title="Deletar">🗑️</button>
+        ${lead.status !== 'venda' ? `<button class="action-btn" onclick="convertToPatient('${lead.id}')" title="Virar paciente">➡️</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Update KPIs
+function updateKPIs() {
+  const total = leads.length;
+  const negociacao = leads.filter(l => l.status === 'negociacao').length;
+  const vendas = leads.filter(l => l.status === 'venda').length;
+  const taxa = total > 0 ? Math.round((vendas / total) * 100) : 0;
+  
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-negociacao').textContent = negociacao;
+  document.getElementById('kpi-vendas').textContent = vendas;
+  document.getElementById('kpi-taxa').textContent = taxa + '%';
+}
+
+// Filter by status
+function setStatusFilter(status) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderLeads();
+}
+
+// Filter by search
+function filterLeads(query) {
+  currentSearch = query;
+  renderLeads();
+}
+
+// Open modal
+function openNewLeadModal() {
+  document.getElementById('new-lead-modal').classList.add('open');
+  document.getElementById('lead-name').focus();
+}
+
+function closeNewLeadModal(e) {
+  if (!e || e.target === document.getElementById('new-lead-modal')) {
+    document.getElementById('new-lead-modal').classList.remove('open');
+  }
+}
+
+// Save lead
+async function saveLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  const birth = document.getElementById('lead-birth').value;
+  const whatsapp = document.getElementById('lead-whatsapp').value.trim();
+  const instagram = document.getElementById('lead-instagram').value.trim();
+  const objetivo = document.getElementById('lead-objetivo').value;
+  const dificuldades = document.getElementById('lead-dificuldades').value.trim();
+  const meio = document.getElementById('lead-meio').value;
+  const contaMais = document.getElementById('lead-conta-mais').value.trim();
+  const email = document.getElementById('lead-email').value.trim();
+  const status = document.getElementById('lead-status').value;
+  const plano = document.getElementById('lead-plano').value || null;
+  const pendencia = document.getElementById('lead-pendencia').value.trim() || null;
+
+  if (!name || !objetivo || !dificuldades || !meio || !contaMais || !status) {
+    showToast('Preencha todos os campos obrigatórios (*)');
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('leads')
+      .insert({
+        full_name: name,
+        birth_date: birth || null,
+        whatsapp,
+        instagram,
+        objective: objetivo,
+        difficulties: dificuldades,
+        how_arrived: meio,
+        more_info: contaMais,
+        email,
+        status,
+        plan: plano,
+        pending: pendencia
+      });
+    
+    if (error) throw error;
+
+    showToast('✅ Lead criado com sucesso!');
+    document.getElementById('new-lead-modal').classList.remove('open');
+    
+    // Limpar formulário
+    document.querySelectorAll('#new-lead-modal input, #new-lead-modal textarea, #new-lead-modal select').forEach(el => {
+      el.value = '';
+    });
+    
+    loadLeads();
+  } catch (err) {
+    console.error('Erro ao salvar lead:', err);
+    showToast('Erro ao criar lead: ' + err.message);
+  }
+}
+
+// Edit lead
+async function editLead(leadId) {
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  document.getElementById('edit-lead-id').value = leadId;
+  document.getElementById('edit-lead-name').value = lead.full_name;
+  document.getElementById('edit-lead-status').value = lead.status;
+  document.getElementById('edit-lead-whatsapp').value = lead.whatsapp || '';
+  document.getElementById('edit-lead-email').value = lead.email || '';
+  document.getElementById('edit-lead-plano').value = lead.plan || '';
+  document.getElementById('edit-lead-pendencia').value = lead.pending || '';
+
+  document.getElementById('edit-lead-modal').classList.add('open');
+}
+
+function closeEditLeadModal(e) {
+  if (!e || e.target === document.getElementById('edit-lead-modal')) {
+    document.getElementById('edit-lead-modal').classList.remove('open');
+  }
+}
+
+async function updateLead() {
+  const leadId = document.getElementById('edit-lead-id').value;
+  const name = document.getElementById('edit-lead-name').value.trim();
+  const status = document.getElementById('edit-lead-status').value;
+  const whatsapp = document.getElementById('edit-lead-whatsapp').value.trim();
+  const email = document.getElementById('edit-lead-email').value.trim();
+  const plano = document.getElementById('edit-lead-plano').value || null;
+  const pendencia = document.getElementById('edit-lead-pendencia').value.trim() || null;
+
+  try {
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        full_name: name,
+        status,
+        whatsapp,
+        email,
+        plan: plano,
+        pending: pendencia,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', leadId);
+    
+    if (error) throw error;
+
+    showToast('✅ Lead atualizado!');
+    closeEditLeadModal();
+    loadLeads();
+  } catch (err) {
+    console.error('Erro ao atualizar lead:', err);
+    showToast('Erro ao atualizar: ' + err.message);
+  }
+}
+
+// Delete lead
+async function deleteLead(leadId) {
+  if (!confirm('Tem certeza que quer deletar este lead?')) return;
+
+  try {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', leadId);
+    
+    if (error) throw error;
+
+    showToast('✅ Lead deletado');
+    loadLeads();
+  } catch (err) {
+    console.error('Erro ao deletar:', err);
+    showToast('Erro ao deletar: ' + err.message);
+  }
+}
+
+// Convert to patient (move to controle_consultorio)
+async function convertToPatient(leadId) {
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  // Aqui você marcaria o status como "venda" e depois moveria para pacientes
+  // Por enquanto, apenas atualizamos o status para "venda"
+  
+  if (confirm(`Converter "${lead.full_name}" em paciente?`)) {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: 'venda', converted_to_patient_at: new Date().toISOString() })
+        .eq('id', leadId);
+      
+      if (error) throw error;
+
+      showToast('✅ Lead marcado como "Venda"! Adicione como paciente no Controle de Consultório.');
+      loadLeads();
+    } catch (err) {
+      console.error('Erro:', err);
+      showToast('Erro ao converter: ' + err.message);
+    }
+  }
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  loadLeads();
+  
+  // Refresh a cada 10 segundos
+  setInterval(loadLeads, 10000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>MÉTODO MEB — Meu Progresso</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--dou-bg:#FBF4E3;
+  --terra:#C4714A;--ter-bg:#FAF0EB;--fundo:#F0EBE1;--surf:#fff;
+  --borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt);min-height:100vh}
+
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+
+
+.page{padding:16px;max-width:1000px;margin:0 auto;min-height:calc(100vh - 56px)}
+
+.hero{background:linear-gradient(135deg,var(--terra) 0%,#d9825a 100%);border-radius:var(--r);padding:24px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden;text-align:center}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero-content{position:relative;z-index:1}
+.streak-display{font-size:80px;line-height:1;margin:10px 0;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.streak-label{font-size:16px;color:rgba(255,255,255,.9);margin-top:10px}
+.streak-sub{font-size:13px;color:rgba(255,255,255,.7)}
+
+.section{margin-bottom:24px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--txt);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--borda)}
+
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:12px;margin-bottom:16px}
+.badge{background:var(--surf);border:2px solid var(--borda);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
+.badge.unlocked{border-color:var(--dourado);background:var(--dou-bg);box-shadow:0 4px 12px rgba(184,146,42,.2)}
+.badge-icon{font-size:32px;display:block;margin-bottom:4px}
+.badge-name{font-size:10px;font-weight:600;color:var(--txt-soft);text-transform:uppercase}
+.badge.unlocked .badge-name{color:var(--dourado)}
+
+.tracker{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:16px}
+.tracker-title{font-size:13px;font-weight:600;color:var(--txt-soft);text-transform:uppercase;margin-bottom:12px}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day-box{aspect-ratio:1;background:var(--fundo);border:1px solid var(--borda);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--txt-soft);cursor:pointer;transition:all .2s}
+.day-box.checked{background:var(--oliva);border-color:var(--oliva);color:#fff}
+
+.milestones{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:16px}
+.milestone{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--borda)}
+.milestone:last-child{border-bottom:none}
+.milestone-icon{font-size:20px}
+.milestone-info{flex:1}
+.milestone-label{font-size:11px;color:var(--txt-soft);text-transform:uppercase;font-weight:600}
+.milestone-value{font-size:14px;font-weight:600;color:var(--txt)}
+.milestone-progress{width:100%;height:4px;background:var(--fundo);border-radius:2px;margin-top:4px;overflow:hidden}
+.milestone-bar{height:100%;background:var(--oliva);width:var(--progress,0%);transition:width .3s}
+
+/* Responsive */
+@media (max-width: 480px) {
+  html { font-size: 13px; }
+  .page { padding: 12px; }
+  .hero { padding: 16px; }
+  .streak-display { font-size: 60px; }
+  .badges { grid-template-columns: repeat(auto-fit,minmax(70px,1fr)); }
+  .days-grid { gap: 4px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  html { font-size: 13px; }
+  .page { padding: 14px; }
+  .streak-display { font-size: 70px; }
+  .badges { grid-template-columns: repeat(auto-fit,minmax(75px,1fr)); }
+}
+
+@media (min-width: 769px) {
+  html { font-size: 14px; }
+  .page { padding: 16px; }
+  .streak-display { font-size: 80px; }
+}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Hero: Streak -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="streak-label">Sua sequência 🔥</div>
+      <div class="streak-display" id="streak-number">0</div>
+      <div class="streak-sub">dias consecutivos de registros</div>
+    </div>
+  </div>
+
+  <!-- Seção: Badges -->
+  <div class="section">
+    <h2 class="section-title">🏆 Badges Desbloqueados</h2>
+    <div class="badges" id="badges-container">
+      <!-- Carregado via JS -->
+    </div>
+  </div>
+
+  <!-- Seção: Tracker 30 dias -->
+  <div class="section">
+    <h2 class="section-title">📅 Últimos 30 Dias</h2>
+    <div class="tracker">
+      <div class="tracker-title">Dias com registros</div>
+      <div class="days-grid" id="days-grid">
+        <!-- Carregado via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção: Milestones -->
+  <div class="section">
+    <h2 class="section-title">🎯 Milestones</h2>
+    <div class="milestones" id="milestones-container">
+      <!-- Carregado via JS -->
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const BADGES = [
+  { id: 1, icon: '🌿', name: 'Iniciante', desc: '1º registro' },
+  { id: 2, icon: '🔥', name: '3 dias', desc: '3 registros' },
+  { id: 3, icon: '⭐', name: '7 dias', desc: '7 registros' },
+  { id: 4, icon: '🏆', name: '30 dias', desc: '30 registros' },
+  { id: 5, icon: '👑', name: '100 dias', desc: '100 registros' },
+  { id: 6, icon: '💪', name: 'Consistência', desc: '7 dias seguidos' },
+  { id: 7, icon: '🎯', name: 'Meta atingida', desc: 'Peso meta' },
+  { id: 8, icon: '🌟', name: 'Lendária', desc: '365 dias' },
+  { id: 9, icon: '💚', name: 'Dedicada', desc: 'Comunidade ativa' },
+];
+
+let userData = {
+  streak: 0,
+  totalRegisters: 0,
+  unlockedBadges: [],
+  last30Days: [],
+};
+
+async function loadData() {
+  try {
+    const { data: { user } } = await supabase.auth.getSession();
+    if (!user) return;
+
+    // Load diary entries
+    const { data: entries } = await supabase
+      .from('diary_entries')
+      .select('entry_date')
+      .eq('patient_id', user.id)
+      .order('entry_date', { ascending: false });
+
+    if (!entries) return;
+
+    userData.totalRegisters = entries.length;
+
+    // Calculate streak
+    const today = new Date();
+    let streak = 0;
+    const dates = new Set(entries.map(e => e.entry_date));
+    
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      if (dates.has(dateStr)) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    userData.streak = streak;
+
+    // Last 30 days
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      userData.last30Days.push({
+        date: dateStr,
+        checked: dates.has(dateStr)
+      });
+    }
+    userData.last30Days.reverse();
+
+    // Unlock badges
+    if (userData.totalRegisters >= 1) userData.unlockedBadges.push(1);
+    if (userData.totalRegisters >= 3) userData.unlockedBadges.push(2);
+    if (userData.totalRegisters >= 7) userData.unlockedBadges.push(3);
+    if (userData.totalRegisters >= 30) userData.unlockedBadges.push(4);
+    if (userData.totalRegisters >= 100) userData.unlockedBadges.push(5);
+    if (userData.streak >= 7) userData.unlockedBadges.push(6);
+    if (userData.streak >= 365) userData.unlockedBadges.push(8);
+
+    render();
+  } catch (err) {
+    console.error('Erro:', err);
+  }
+}
+
+function render() {
+  // Streak
+  document.getElementById('streak-number').textContent = userData.streak;
+
+  // Badges
+  const badgesHtml = BADGES.map(badge => {
+    const unlocked = userData.unlockedBadges.includes(badge.id);
+    return `
+      <div class="badge ${unlocked ? 'unlocked' : ''}">
+        <span class="badge-icon">${badge.icon}</span>
+        <span class="badge-name">${badge.name}</span>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('badges-container').innerHTML = badgesHtml;
+
+  // Days grid
+  const daysHtml = userData.last30Days.map(day => {
+    return `<div class="day-box ${day.checked ? 'checked' : ''}"></div>`;
+  }).join('');
+  document.getElementById('days-grid').innerHTML = daysHtml;
+
+  // Milestones
+  const milestones = [
+    { icon: '📊', label: 'Total de Registros', value: userData.totalRegisters, target: 100, symbol: '' },
+    { icon: '🔥', label: 'Melhor Sequência', value: userData.streak, target: 30, symbol: 'dias' },
+  ];
+  const milestonesHtml = milestones.map(m => {
+    const progress = Math.min((m.value / m.target) * 100, 100);
+    return `
+      <div class="milestone">
+        <span class="milestone-icon">${m.icon}</span>
+        <div class="milestone-info">
+          <div class="milestone-label">${m.label}</div>
+          <div class="milestone-value">${m.value} ${m.symbol}</div>
+          <div class="milestone-progress">
+            <div class="milestone-bar" style="--progress:${progress}%"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('milestones-container').innerHTML = milestonesHtml;
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

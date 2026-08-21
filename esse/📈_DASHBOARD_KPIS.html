@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MÉTODO MEB — Dashboard de KPIs</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+:root {
+  --oliva:#5C6B3A;--oliva-lt:#7A8C52;--oliva-bg:#EEF0E8;
+  --choco:#3D2314;--creme:#F5EFE6;--dourado:#B8922A;--terra:#C4714A;
+  --fundo:#F0EBE1;--surf:#fff;--borda:#E2D9CC;--txt:#2A1F14;--txt-soft:#8A7A6A;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--txt)}
+
+.hdr{background:var(--choco);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--creme);display:flex;align-items:center;gap:8px}
+
+
+.page{padding:16px;max-width:1400px;margin:0 auto;min-height:calc(100vh - 56px)}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--oliva) 0%,#6a7a4a 100%);border-radius:var(--r);padding:24px 20px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+.hero-content{position:relative;z-index:1}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;margin-bottom:4px}
+.hero-sub{font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.6}
+.hero-date{font-size:11px;color:rgba(255,255,255,.6);margin-top:8px}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px}
+
+.kpi-card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:all .15s}
+.kpi-card::before{content:'';position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(92,107,58,.05) 0%,transparent 70%);border-radius:50%;transform:translate(30px,-30px)}
+
+.kpi-card.danger{border-left:4px solid var(--terra)}
+.kpi-card.warning{border-left:4px solid var(--dourado)}
+.kpi-card.success{border-left:4px solid var(--oliva)}
+
+.kpi-label{font-size:11px;color:var(--txt-soft);text-transform:uppercase;font-weight:600;letter-spacing:.04em;margin-bottom:8px;display:block}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--txt);line-height:1}
+.kpi-change{font-size:12px;color:var(--txt-soft);margin-top:8px}
+.kpi-change.positive{color:var(--oliva)}
+.kpi-change.negative{color:var(--terra)}
+
+.kpi-detail{font-size:11px;color:var(--txt-soft);margin-top:10px;padding-top:10px;border-top:1px solid var(--borda)}
+
+/* Charts Grid */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:20px}
+
+.chart-card{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);padding:16px;display:flex;flex-direction:column}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--txt)}
+.chart-container{flex:1;position:relative;min-height:250px}
+
+/* Tables */
+.table-container{background:var(--surf);border:1px solid var(--borda);border-radius:var(--r);overflow-x:auto;margin-bottom:20px}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{background:var(--fundo);padding:12px;text-align:left;font-weight:600;border-bottom:2px solid var(--borda)}
+.table td{padding:12px;border-bottom:1px solid var(--borda)}
+.table tbody tr:hover{background:rgba(92,107,58,.02)}
+
+/* Progress Bar */
+.progress{width:100%;height:6px;background:var(--fundo);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-bar{height:100%;background:var(--oliva);width:0%;transition:width .3s}
+
+/* Status Badge */
+.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
+.badge-ativo{background:rgba(39,174,96,.1);color:var(--oliva)}
+.badge-avencer{background:rgba(179,126,42,.1);color:var(--dourado)}
+.badge-expirado{background:rgba(196,113,74,.1);color:var(--terra)}
+
+/* Section */
+.section{margin-bottom:24px}
+.section-title{font-size:14px;font-weight:600;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--borda)}
+
+/* Responsive */
+@media (max-width:768px) {
+  .kpi-grid,.charts-grid{grid-template-columns:1fr}
+  .kpi-value{font-size:24px}
+}
+
+/* ========================================
+   MEB HEADER - DESIGN SYSTEM
+   Paleta: Outono Suave
+======================================== */
+
+.meb-hdr {
+  background: linear-gradient(90deg, #3D2314 0%, #3D2314dd 100%);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61, 35, 20, 0.1);
+  border-bottom: 2px solid #B8922A;
+}
+
+.meb-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-hdr-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5EFE6;
+  letter-spacing: 1px;
+}
+
+.meb-hdr-nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.meb-nav-link {
+  color: #F5EFE6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.meb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #B8922A;
+}
+
+.meb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: #B8922A;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.meb-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.meb-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.meb-btn-user {
+  background: #B5563A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.meb-btn-user:hover {
+  background: #B8922A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 146, 42, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .meb-hdr {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .meb-hdr-nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .meb-nav-link {
+    font-size: 12px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="meb-hdr" role="banner">
+  <div class="meb-hdr-left">
+    <svg width="40" height="40" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+    </style>
+  </defs>
+  <g>
+    <path d="M 20 5 Q 8 5 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="8" y1="17" x2="72" y2="17" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 72 17 Q 84 17 84 29" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 84 51 Q 84 63 72 63" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <line x1="72" y1="63" x2="8" y2="63" stroke="%23C4B5A0" stroke-width="1.5"/>
+    <path d="M 8 63 Q -4 63 -4 51" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -4 29 Q -4 17 8 17" fill="none" stroke="%23F5EFE6" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="42" y="45" font-family="Playfair Display, Georgia, serif" font-size="42" font-weight="400" text-anchor="middle" dominant-baseline="middle" fill="%23F5EFE6">meb</text>
+</svg>
+    <span class="meb-hdr-brand">MEB</span>
+  </div>
+  <nav class="meb-hdr-nav" role="navigation">
+    <a href="index.html" class="meb-nav-link">Dashboard</a>
+    <a href="meb_painel_nutri.html" class="meb-nav-link">Painel</a>
+    <a href="meb_controle_leads.html" class="meb-nav-link">Leads</a>
+    <a href="meb_tela_paciente_integrada.html" class="meb-nav-link">Pacientes</a>
+  </nav>
+  <div class="meb-hdr-right">
+    <button class="meb-btn-user" onclick="toggleUserMenu()">👤 Conta</button>
+  </div>
+</header>
+
+
+
+
+<div class="page">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-title">📊 Dashboard de KPIs</div>
+      <div class="hero-sub">Visão completa da saúde do seu negócio Método MEB</div>
+      <div class="hero-date" id="current-date"></div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1: KPIs Principais -->
+  <div class="section">
+    <h2 class="section-title">📈 Métricas Principais</h2>
+    <div class="kpi-grid">
+      <!-- Total de Pacientes -->
+      <div class="kpi-card success">
+        <span class="kpi-label">👥 Total de Pacientes</span>
+        <div class="kpi-value" id="kpi-total-patients">0</div>
+        <div class="kpi-change" id="kpi-total-change">+0 este mês</div>
+        <div class="kpi-detail">
+          <strong id="kpi-ativos">0</strong> ativos • <strong id="kpi-inativos">0</strong> inativos
+        </div>
+      </div>
+
+      <!-- Receita MRR (Monthly Recurring Revenue) -->
+      <div class="kpi-card success">
+        <span class="kpi-label">💰 Receita Mensal (MRR)</span>
+        <div class="kpi-value">R$<span id="kpi-mrr">0</span></div>
+        <div class="kpi-change positive" id="kpi-mrr-change">↑ 0% vs mês anterior</div>
+        <div class="kpi-detail">
+          Receita recorrente mensal garantida
+        </div>
+      </div>
+
+      <!-- Taxa de Retenção -->
+      <div class="kpi-card success">
+        <span class="kpi-label">🎯 Taxa de Retenção</span>
+        <div class="kpi-value" id="kpi-retention">0%</div>
+        <div class="kpi-detail">
+          <div class="progress">
+            <div class="progress-bar" id="kpi-retention-bar" style="width:0%"></div>
+          </div>
+          Meta: 90%
+        </div>
+      </div>
+
+      <!-- Churn Rate -->
+      <div class="kpi-card warning">
+        <span class="kpi-label">📉 Churn Rate (Cancelamentos)</span>
+        <div class="kpi-value" id="kpi-churn">0%</div>
+        <div class="kpi-detail">
+          <strong id="kpi-cancelados">0</strong> pacientes cancelados este mês
+        </div>
+      </div>
+
+      <!-- Receita em Pendência -->
+      <div class="kpi-card danger">
+        <span class="kpi-label">⚠️ Vencendo em 7 dias</span>
+        <div class="kpi-value" id="kpi-expiring">0</div>
+        <div class="kpi-change negative">Ação imediata recomendada</div>
+      </div>
+
+      <!-- Valor Médio do Plano -->
+      <div class="kpi-card success">
+        <span class="kpi-label">💎 Valor Médio (MRR/Paciente)</span>
+        <div class="kpi-value">R$<span id="kpi-avg-value">0</span></div>
+        <div class="kpi-change" id="kpi-avg-change">Meta: R$1.000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2: Distribuição de Pacientes por Plano -->
+  <div class="section">
+    <h2 class="section-title">🎯 Distribuição por Plano</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3 class="chart-title">Pacientes por Plano</h3>
+        <div class="chart-container">
+          <canvas id="chartPlanDistribution"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Receita por Plano</h3>
+        <div class="chart-container">
+          <canvas id="chartRevenueByPlan"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela Detalhada -->
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Pacientes</th>
+            <th>Receita</th>
+            <th>% do Total</th>
+            <th>Ticket Médio</th>
+            <th>Tendência</th>
+          </tr>
+        </thead>
+        <tbody id="table-plans">
+          <!-- Carregado via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3: Status de Pacientes -->
+  <div class="section">
+    <h2 class="section-title">📋 Status dos Pacientes</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3 class="chart-title">Status de Pacientes</h3>
+        <div class="chart-container">
+          <canvas id="chartPatientStatus"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Vencimentos (Próximos 30 dias)</h3>
+        <div class="chart-container">
+          <canvas id="chartExpirations"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 4: Leads & Conversão -->
+  <div class="section">
+    <h2 class="section-title">🔄 Funil de Vendas</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">📊 Total de Leads</span>
+        <div class="kpi-value" id="kpi-total-leads">0</div>
+        <div class="kpi-detail">Este mês: <strong id="kpi-leads-month">0</strong></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">💬 Em Negociação</span>
+        <div class="kpi-value" id="kpi-negotiating">0</div>
+        <div class="kpi-change">% da base: <span id="kpi-neg-percent">0%</span></div>
+      </div>
+      <div class="kpi-card success">
+        <span class="kpi-label">✅ Vendas (Leads → Pacientes)</span>
+        <div class="kpi-value" id="kpi-conversions">0</div>
+        <div class="kpi-change positive">Taxa: <span id="kpi-conversion-rate">0%</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">💲 Receita de Novas Vendas</span>
+        <div class="kpi-value">R$<span id="kpi-new-revenue">0</span></div>
+        <div class="kpi-detail">Novos pacientes este mês</div>
+      </div>
+    </div>
+
+    <!-- Chart Funil -->
+    <div class="charts-grid" style="margin-top:14px">
+      <div class="chart-card">
+        <h3 class="chart-title">Funil de Vendas (Contagem)</h3>
+        <div class="chart-container">
+          <canvas id="chartFunnel"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 5: Nota Fiscal & Pendências -->
+  <div class="section">
+    <h2 class="section-title">📄 Nota Fiscal & Pendências</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card success">
+        <span class="kpi-label">✅ Notas Enviadas</span>
+        <div class="kpi-value" id="kpi-invoice-sent">0</div>
+        <div class="kpi-change positive"><span id="kpi-invoice-percent">0%</span> em dia</div>
+      </div>
+      <div class="kpi-card warning">
+        <span class="kpi-label">⏳ Notas Pendentes</span>
+        <div class="kpi-value" id="kpi-invoice-pending">0</div>
+        <div class="kpi-change">Ação necessária!</div>
+      </div>
+      <div class="kpi-card danger">
+        <span class="kpi-label">❌ Sem Informação</span>
+        <div class="kpi-value" id="kpi-invoice-no">0</div>
+        <div class="kpi-detail">Revisar com pacientes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 6: Prognóstico 30 dias -->
+  <div class="section">
+    <h2 class="section-title">🔮 Prognóstico (Próximos 30 dias)</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">📈 Receita Esperada</span>
+        <div class="kpi-value">R$<span id="kpi-forecast-revenue">0</span></div>
+        <div class="kpi-change">Se renovar <span id="kpi-forecast-pct">0%</span> dos vencimentos</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">🎯 Pacientes Esperados</span>
+        <div class="kpi-value" id="kpi-forecast-patients">0</div>
+        <div class="kpi-detail">Com renovações mantidas</div>
+      </div>
+      <div class="kpi-card warning">
+        <span class="kpi-label">⚠️ Pacientes em Risco</span>
+        <div class="kpi-value" id="kpi-at-risk">0</div>
+        <div class="kpi-change">Acompanhamento urgente</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ⚠️ COLOQUE SUAS CREDENCIAIS AQUI:
+const SUPABASE_URL = 'https://rzpfacwxhgrvmtwbbqhv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6cGZhY3d4aGdydm10d2JicWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NzcsImV4cCI6MjA5NzIxMTc3N30.mCCIjuIfqKos6KS0sxL-2qqjXqUXCtBPEotZZCCt0Ks';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const PLAN_PRICES = {
+  'caminho': 697,
+  'transformacao': 1697,
+  'jornada': 3297
+};
+
+let patients = [];
+let leads = [];
+let charts = {};
+
+// Load all data
+async function loadDashboard() {
+  try {
+    // Load patients
+    const { data: patientsData } = await supabase
+      .from('patients')
+      .select('*');
+    patients = patientsData || [];
+
+    // Load leads
+    const { data: leadsData } = await supabase
+      .from('leads')
+      .select('*');
+    leads = leadsData || [];
+
+    renderKPIs();
+    renderCharts();
+    updateDate();
+  } catch (err) {
+    console.error('Erro:', err);
+  }
+}
+
+// Update current date
+function updateDate() {
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const today = new Date().toLocaleDateString('pt-BR', options);
+  document.getElementById('current-date').textContent = today;
+}
+
+// Calculate KPIs
+function renderKPIs() {
+  const totalPatients = patients.length;
+  const activePatients = patients.filter(p => p.status === 'ativo').length;
+  const inactivePatients = totalPatients - activePatients;
+
+  // Receita MRR
+  let mrr = 0;
+  patients.forEach(p => {
+    if (p.status === 'ativo') {
+      mrr += (PLAN_PRICES[p.plan] || 0) / (p.plan === 'caminho' ? 3 : p.plan === 'transformacao' ? 6 : 12);
+    }
+  });
+
+  // Vencimentos próximos
+  const today = new Date();
+  const in7days = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const expiringCount = patients.filter(p => {
+    const expDate = new Date(p.plan_expiration_date);
+    return expDate <= in7days && expDate > today;
+  }).length;
+
+  // Taxa de retenção (pacientes ativos / total)
+  const retentionRate = totalPatients > 0 ? Math.round((activePatients / totalPatients) * 100) : 0;
+
+  // Churn rate (assumindo saída mensal de 5%)
+  const churnRate = 5;
+
+  // Cancelados este mês
+  const canceledThisMonth = patients.filter(p => p.status === 'cancelado').length;
+
+  // Valor médio por paciente
+  const avgValue = activePatients > 0 ? Math.round(mrr / activePatients) : 0;
+
+  // Atualizar KPIs
+  document.getElementById('kpi-total-patients').textContent = totalPatients;
+  document.getElementById('kpi-ativos').textContent = activePatients;
+  document.getElementById('kpi-inativos').textContent = inactivePatients;
+  document.getElementById('kpi-mrr').textContent = mrr.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+  document.getElementById('kpi-retention').textContent = retentionRate + '%';
+  document.getElementById('kpi-retention-bar').style.width = retentionRate + '%';
+  document.getElementById('kpi-churn').textContent = churnRate + '%';
+  document.getElementById('kpi-cancelados').textContent = canceledThisMonth;
+  document.getElementById('kpi-expiring').textContent = expiringCount;
+  document.getElementById('kpi-avg-value').textContent = avgValue;
+
+  // Renders por plano
+  renderPlanTable();
+
+  // Leads
+  document.getElementById('kpi-total-leads').textContent = leads.length;
+  document.getElementById('kpi-negotiating').textContent = leads.filter(l => l.status === 'negociacao').length;
+  
+  const conversions = leads.filter(l => l.status === 'venda').length;
+  const conversionRate = leads.length > 0 ? Math.round((conversions / leads.length) * 100) : 0;
+  document.getElementById('kpi-conversions').textContent = conversions;
+  document.getElementById('kpi-conversion-rate').textContent = conversionRate + '%';
+
+  // Receita de novas vendas
+  let newRevenue = 0;
+  leads.filter(l => l.status === 'venda').forEach(l => {
+    newRevenue += (PLAN_PRICES[l.plan] || 0);
+  });
+  document.getElementById('kpi-new-revenue').textContent = newRevenue.toLocaleString('pt-BR');
+
+  // Nota Fiscal
+  const invoiceSent = patients.filter(p => p.invoice_status === 'sim').length;
+  const invoicePending = patients.filter(p => p.invoice_status === 'pendencia').length;
+  const invoiceNo = patients.filter(p => p.invoice_status === 'nao').length;
+  
+  document.getElementById('kpi-invoice-sent').textContent = invoiceSent;
+  document.getElementById('kpi-invoice-percent').textContent = totalPatients > 0 ? Math.round((invoiceSent / totalPatients) * 100) : 0;
+  document.getElementById('kpi-invoice-pending').textContent = invoicePending;
+  document.getElementById('kpi-invoice-no').textContent = invoiceNo;
+
+  // Prognóstico
+  const atRisk = expiringCount;
+  const forecastRevenue = Math.round(mrr * (1 - (churnRate / 100)));
+  const forecastPatients = Math.round(activePatients * (1 - (churnRate / 100)));
+  
+  document.getElementById('kpi-forecast-revenue').textContent = forecastRevenue.toLocaleString('pt-BR');
+  document.getElementById('kpi-forecast-pct').textContent = (100 - churnRate) + '%';
+  document.getElementById('kpi-forecast-patients').textContent = forecastPatients;
+  document.getElementById('kpi-at-risk').textContent = atRisk;
+}
+
+// Render table de planos
+function renderPlanTable() {
+  const plans = { 'caminho': [], 'transformacao': [], 'jornada': [] };
+  
+  patients.forEach(p => {
+    if (plans[p.plan]) {
+      plans[p.plan].push(p);
+    }
+  });
+
+  let totalRevenue = 0;
+  patients.forEach(p => {
+    if (p.status === 'ativo') {
+      totalRevenue += (PLAN_PRICES[p.plan] || 0) / (p.plan === 'caminho' ? 3 : p.plan === 'transformacao' ? 6 : 12);
+    }
+  });
+
+  const html = Object.entries(plans).map(([planName, planPatients]) => {
+    const count = planPatients.length;
+    const active = planPatients.filter(p => p.status === 'ativo').length;
+    let revenue = 0;
+    planPatients.forEach(p => {
+      if (p.status === 'ativo') {
+        revenue += (PLAN_PRICES[planName] || 0) / (planName === 'caminho' ? 3 : planName === 'transformacao' ? 6 : 12);
+      }
+    });
+    const percent = totalRevenue > 0 ? Math.round((revenue / totalRevenue) * 100) : 0;
+    const avgTicket = active > 0 ? Math.round(revenue / active) : 0;
+
+    return `
+      <tr>
+        <td><strong>${planName}</strong></td>
+        <td>${count} <span style="font-size:10px;color:var(--txt-soft)">(${active} ativos)</span></td>
+        <td>R$ ${revenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</td>
+        <td>${percent}%</td>
+        <td>R$ ${avgTicket}</td>
+        <td>${active === count ? '✅' : active === 0 ? '❌' : '⚠️'}</td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('table-plans').innerHTML = html;
+}
+
+// Render charts
+function renderCharts() {
+  // 1. Distribution by plan
+  const planCounts = { 'Caminho': 0, 'Transformação': 0, 'Jornada': 0 };
+  patients.forEach(p => {
+    if (p.plan === 'caminho') planCounts['Caminho']++;
+    else if (p.plan === 'transformacao') planCounts['Transformação']++;
+    else if (p.plan === 'jornada') planCounts['Jornada']++;
+  });
+
+  if (charts.planDistribution) charts.planDistribution.destroy();
+  charts.planDistribution = new Chart(document.getElementById('chartPlanDistribution'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(planCounts),
+      datasets: [{
+        data: Object.values(planCounts),
+        backgroundColor: ['#5C6B3A', '#7A8C52', '#B8922A'],
+        borderColor: '#fff'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // 2. Revenue by plan
+  let planRevenue = { 'Caminho': 0, 'Transformação': 0, 'Jornada': 0 };
+  patients.forEach(p => {
+    if (p.status === 'ativo') {
+      const revenue = (PLAN_PRICES[p.plan] || 0) / (p.plan === 'caminho' ? 3 : p.plan === 'transformacao' ? 6 : 12);
+      if (p.plan === 'caminho') planRevenue['Caminho'] += revenue;
+      else if (p.plan === 'transformacao') planRevenue['Transformação'] += revenue;
+      else if (p.plan === 'jornada') planRevenue['Jornada'] += revenue;
+    }
+  });
+
+  if (charts.revenueByPlan) charts.revenueByPlan.destroy();
+  charts.revenueByPlan = new Chart(document.getElementById('chartRevenueByPlan'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(planRevenue),
+      datasets: [{
+        label: 'Receita MRR',
+        data: Object.values(planRevenue),
+        backgroundColor: '#5C6B3A'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } } }
+  });
+
+  // 3. Patient status
+  const statusCounts = {
+    'Ativo': patients.filter(p => p.status === 'ativo').length,
+    'A Vencer': patients.filter(p => {
+      const days = Math.ceil((new Date(p.plan_expiration_date) - new Date()) / (1000*60*60*24));
+      return days >= 0 && days <= 7;
+    }).length,
+    'Expirado': patients.filter(p => {
+      const days = Math.ceil((new Date(p.plan_expiration_date) - new Date()) / (1000*60*60*24));
+      return days < 0;
+    }).length
+  };
+
+  if (charts.patientStatus) charts.patientStatus.destroy();
+  charts.patientStatus = new Chart(document.getElementById('chartPatientStatus'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{
+        data: Object.values(statusCounts),
+        backgroundColor: ['#5C6B3A', '#B8922A', '#C4714A'],
+        borderColor: '#fff'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // 4. Expirations
+  const expirationData = [0, 0, 0];
+  patients.forEach(p => {
+    const days = Math.ceil((new Date(p.plan_expiration_date) - new Date()) / (1000*60*60*24));
+    if (days >= 0 && days <= 7) expirationData[0]++;
+    else if (days > 7 && days <= 14) expirationData[1]++;
+    else if (days > 14 && days <= 30) expirationData[2]++;
+  });
+
+  if (charts.expirations) charts.expirations.destroy();
+  charts.expirations = new Chart(document.getElementById('chartExpirations'), {
+    type: 'bar',
+    data: {
+      labels: ['0-7 dias', '8-14 dias', '15-30 dias'],
+      datasets: [{
+        label: 'Pacientes',
+        data: expirationData,
+        backgroundColor: '#C4714A'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // 5. Funnel
+  const funnelData = [
+    leads.length,
+    leads.filter(l => l.status !== 'nao_abordado').length,
+    leads.filter(l => l.status === 'negociacao').length,
+    leads.filter(l => l.status === 'venda').length
+  ];
+
+  if (charts.funnel) charts.funnel.destroy();
+  charts.funnel = new Chart(document.getElementById('chartFunnel'), {
+    type: 'bar',
+    data: {
+      labels: ['Total', 'Abordados', 'Negociando', 'Vendidos'],
+      datasets: [{
+        label: 'Leads',
+        data: funnelData,
+        backgroundColor: '#5C6B3A'
+      }]
+    },
+    options: { 
+      indexAxis: 'y',
+      responsive: true, 
+      maintainAspectRatio: false, 
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true } }
+    }
+  });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', loadDashboard);
+
+// Refresh a cada 5 minutos
+setInterval(loadDashboard, 5 * 60 * 1000);
+</script>
+</body>
+</html>
