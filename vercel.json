@@ -2,12 +2,14 @@
     "version": 2,
     "buildCommand": "npm run build",
     "devCommand": "npm run dev",
-    "installCommand": "npm install",
+    "installCommand": "npm install",,
+    					"value": ""
     "framework": "nextjs",
     "env": {
           "NEXT_PUBLIC_SUPABASE_URL": {
                   "description": "URL da API Supabase",
-                  "required": true
+                  "required": true,
+              					"value": ""
           },
           "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
                   "description": "Chave anôn Supabase",
@@ -15,7 +17,8 @@
           },
           "NEXT_PUBLIC_APP_URL": {
                   "description": "URL da aplicação",
-                  "example": "https://nutricionista-meb.vercel.app"
+                  "example": "https://nutricionista-meb.vercel.app",
+              					"value": ""
           }
     },
     "headers": [
